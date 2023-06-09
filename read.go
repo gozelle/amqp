@@ -1,7 +1,7 @@
 // Copyright (c) 2012, Sean Treadway, SoundCloud Ltd.
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
-// Source code and contact info at http://github.com/streadway/amqp
+// Source code and contact info at http://github.com/gozelle/amqp
 
 package amqp
 
@@ -45,48 +45,48 @@ In realistic implementations where performance is a concern, we would use
 */
 func (r *reader) ReadFrame() (frame frame, err error) {
 	var scratch [7]byte
-
+	
 	if _, err = io.ReadFull(r.r, scratch[:7]); err != nil {
 		return
 	}
-
+	
 	typ := uint8(scratch[0])
 	channel := binary.BigEndian.Uint16(scratch[1:3])
 	size := binary.BigEndian.Uint32(scratch[3:7])
-
+	
 	switch typ {
 	case frameMethod:
 		if frame, err = r.parseMethodFrame(channel, size); err != nil {
 			return
 		}
-
+	
 	case frameHeader:
 		if frame, err = r.parseHeaderFrame(channel, size); err != nil {
 			return
 		}
-
+	
 	case frameBody:
 		if frame, err = r.parseBodyFrame(channel, size); err != nil {
 			return nil, err
 		}
-
+	
 	case frameHeartbeat:
 		if frame, err = r.parseHeartbeatFrame(channel, size); err != nil {
 			return
 		}
-
+	
 	default:
 		return nil, ErrFrame
 	}
-
+	
 	if _, err = io.ReadFull(r.r, scratch[:1]); err != nil {
 		return nil, err
 	}
-
+	
 	if scratch[0] != frameEnd {
 		return nil, ErrFrame
 	}
-
+	
 	return
 }
 
@@ -95,7 +95,7 @@ func readShortstr(r io.Reader) (v string, err error) {
 	if err = binary.Read(r, binary.BigEndian, &length); err != nil {
 		return
 	}
-
+	
 	bytes := make([]byte, length)
 	if _, err = io.ReadFull(r, bytes); err != nil {
 		return
@@ -108,12 +108,12 @@ func readLongstr(r io.Reader) (v string, err error) {
 	if err = binary.Read(r, binary.BigEndian, &length); err != nil {
 		return
 	}
-
+	
 	// slices can't be longer than max int32 value
 	if length > (^uint32(0) >> 1) {
 		return
 	}
-
+	
 	bytes := make([]byte, length)
 	if _, err = io.ReadFull(r, bytes); err != nil {
 		return
@@ -174,7 +174,7 @@ func readField(r io.Reader) (v interface{}, err error) {
 	if err = binary.Read(r, binary.BigEndian, &typ); err != nil {
 		return
 	}
-
+	
 	switch typ {
 	case 't':
 		var value uint8
@@ -182,80 +182,80 @@ func readField(r io.Reader) (v interface{}, err error) {
 			return
 		}
 		return (value != 0), nil
-
+	
 	case 'b':
 		var value [1]byte
 		if _, err = io.ReadFull(r, value[0:1]); err != nil {
 			return
 		}
 		return value[0], nil
-
+	
 	case 's':
 		var value int16
 		if err = binary.Read(r, binary.BigEndian, &value); err != nil {
 			return
 		}
 		return value, nil
-
+	
 	case 'I':
 		var value int32
 		if err = binary.Read(r, binary.BigEndian, &value); err != nil {
 			return
 		}
 		return value, nil
-
+	
 	case 'l':
 		var value int64
 		if err = binary.Read(r, binary.BigEndian, &value); err != nil {
 			return
 		}
 		return value, nil
-
+	
 	case 'f':
 		var value float32
 		if err = binary.Read(r, binary.BigEndian, &value); err != nil {
 			return
 		}
 		return value, nil
-
+	
 	case 'd':
 		var value float64
 		if err = binary.Read(r, binary.BigEndian, &value); err != nil {
 			return
 		}
 		return value, nil
-
+	
 	case 'D':
 		return readDecimal(r)
-
+	
 	case 'S':
 		return readLongstr(r)
-
+	
 	case 'A':
 		return readArray(r)
-
+	
 	case 'T':
 		return readTimestamp(r)
-
+	
 	case 'F':
 		return readTable(r)
-
+	
 	case 'x':
 		var len int32
 		if err = binary.Read(r, binary.BigEndian, &len); err != nil {
 			return nil, err
 		}
-
+		
 		value := make([]byte, len)
 		if _, err = io.ReadFull(r, value); err != nil {
 			return nil, err
 		}
 		return value, err
-
+	
 	case 'V':
 		return nil, nil
 	}
-
+	
 	return nil, ErrSyntax
 }
 
@@ -270,30 +270,30 @@ func readField(r io.Reader) (v interface{}, err error) {
 func readTable(r io.Reader) (table Table, err error) {
 	var nested bytes.Buffer
 	var str string
-
+	
 	if str, err = readLongstr(r); err != nil {
 		return
 	}
-
+	
 	nested.Write([]byte(str))
-
+	
 	table = make(Table)
-
+	
 	for nested.Len() > 0 {
 		var key string
 		var value interface{}
-
+		
 		if key, err = readShortstr(&nested); err != nil {
 			return
 		}
-
+		
 		if value, err = readField(&nested); err != nil {
 			return
 		}
-
+		
 		table[key] = value
 	}
-
+	
 	return
 }
 
@@ -302,17 +302,17 @@ func readArray(r io.Reader) ([]interface{}, error) {
 		size uint32
 		err  error
 	)
-
+	
 	if err = binary.Read(r, binary.BigEndian, &size); err != nil {
 		return nil, err
 	}
-
+	
 	var (
 		lim   = &io.LimitedReader{R: r, N: int64(size)}
 		arr   = []interface{}{}
 		field interface{}
 	)
-
+	
 	for {
 		if field, err = readField(lim); err != nil {
 			if err == io.EOF {
@@ -322,7 +322,7 @@ func readArray(r io.Reader) ([]interface{}, error) {
 		}
 		arr = append(arr, field)
 	}
-
+	
 	return arr, nil
 }
 
@@ -335,25 +335,25 @@ func (r *reader) parseHeaderFrame(channel uint16, size uint32) (frame frame, err
 	hf := &headerFrame{
 		ChannelId: channel,
 	}
-
+	
 	if err = binary.Read(r.r, binary.BigEndian, &hf.ClassId); err != nil {
 		return
 	}
-
+	
 	if err = binary.Read(r.r, binary.BigEndian, &hf.weight); err != nil {
 		return
 	}
-
+	
 	if err = binary.Read(r.r, binary.BigEndian, &hf.Size); err != nil {
 		return
 	}
-
+	
 	var flags uint16
-
+	
 	if err = binary.Read(r.r, binary.BigEndian, &flags); err != nil {
 		return
 	}
-
+	
 	if hasProperty(flags, flagContentType) {
 		if hf.Properties.ContentType, err = readShortstr(r.r); err != nil {
 			return
@@ -424,7 +424,7 @@ func (r *reader) parseHeaderFrame(channel uint16, size uint32) (frame frame, err
 			return
 		}
 	}
-
+	
 	return hf, nil
 }
 
@@ -433,11 +433,11 @@ func (r *reader) parseBodyFrame(channel uint16, size uint32) (frame frame, err e
 		ChannelId: channel,
 		Body:      make([]byte, size),
 	}
-
+	
 	if _, err = io.ReadFull(r.r, bf.Body); err != nil {
 		return nil, err
 	}
-
+	
 	return bf, nil
 }
 
@@ -447,10 +447,10 @@ func (r *reader) parseHeartbeatFrame(channel uint16, size uint32) (frame frame, 
 	hf := &heartbeatFrame{
 		ChannelId: channel,
 	}
-
+	
 	if size > 0 {
 		return nil, errHeartbeatPayload
 	}
-
+	
 	return hf, nil
 }

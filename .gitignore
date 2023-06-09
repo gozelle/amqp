@@ -10,3 +10,4 @@ examples/simple-producer/simple-producer
 .idea/**/shelf
 
 .idea/**/contentModel.xml
+.idea

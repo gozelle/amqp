@@ -1,4 +1,4 @@
-[![Build Status](https://api.travis-ci.org/streadway/amqp.svg)](http://travis-ci.org/streadway/amqp) [![GoDoc](https://godoc.org/github.com/streadway/amqp?status.svg)](http://godoc.org/github.com/streadway/amqp)
+[![Build Status](https://api.travis-ci.org/streadway/amqp.svg)](http://travis-ci.org/streadway/amqp) [![GoDoc](https://godoc.org/github.com/gozelle/amqp?status.svg)](http://godoc.org/github.com/gozelle/amqp)
 
 # Go RabbitMQ Client Library (Unmaintained Fork)
 
@@ -69,7 +69,7 @@ please file an issue.
 
 ## Documentation
 
-Use [Godoc documentation](http://godoc.org/github.com/streadway/amqp) for
+Use [Godoc documentation](http://godoc.org/github.com/gozelle/amqp) for
 reference and usage.
 
 [RabbitMQ tutorials in
@@ -86,7 +86,7 @@ To run the integration tests, make sure you have RabbitMQ running on any host,
 export the environment variable `AMQP_URL=amqp://host/` and run `go test -tags
 integration`.  TravisCI will also run the integration tests.
 
-Thanks to the [community of contributors](https://github.com/streadway/amqp/graphs/contributors).
+Thanks to the [community of contributors](https://github.com/gozelle/amqp/graphs/contributors).
 
 ## External packages
 

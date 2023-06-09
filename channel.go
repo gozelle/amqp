@@ -1,7 +1,7 @@
 // Copyright (c) 2012, Sean Treadway, SoundCloud Ltd.
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
-// Source code and contact info at http://github.com/streadway/amqp
+// Source code and contact info at http://github.com/gozelle/amqp
 
 package amqp
 
@@ -29,45 +29,45 @@ type Channel struct {
 	m          sync.Mutex // struct field mutex
 	confirmM   sync.Mutex // publisher confirms state mutex
 	notifyM    sync.RWMutex
-
+	
 	connection *Connection
-
+	
 	rpc       chan message
 	consumers *consumers
-
+	
 	id uint16
-
+	
 	// closed is set to 1 when the channel has been closed - see Channel.send()
 	closed int32
-
+	
 	// true when we will never notify again
 	noNotify bool
-
+	
 	// Channel and Connection exceptions will be broadcast on these listeners.
 	closes []chan *Error
-
+	
 	// Listeners for active=true flow control.  When true is sent to a listener,
 	// publishing should pause until false is sent to listeners.
 	flows []chan bool
-
+	
 	// Listeners for returned publishings for unroutable messages on mandatory
 	// publishings or undeliverable messages on immediate publishings.
 	returns []chan Return
-
+	
 	// Listeners for when the server notifies the client that
 	// a consumer has been cancelled.
 	cancels []chan string
-
+	
 	// Allocated when in confirm mode in order to track publish counter and order confirms
 	confirms   *confirms
 	confirming bool
-
+	
 	// Selects on any errors from shutdown during RPC
 	errors chan *Error
-
+	
 	// State machine that manages frame order, must only be mutated by the connection
 	recv func(*Channel, frame) error
-
+	
 	// Current state for frame re-assembly, only mutated from recv
 	message messageWithContent
 	header  *headerFrame
@@ -93,56 +93,56 @@ func (ch *Channel) shutdown(e *Error) {
 	ch.destructor.Do(func() {
 		ch.m.Lock()
 		defer ch.m.Unlock()
-
+		
 		// Grab an exclusive lock for the notify channels
 		ch.notifyM.Lock()
 		defer ch.notifyM.Unlock()
-
+		
 		// Broadcast abnormal shutdown
 		if e != nil {
 			for _, c := range ch.closes {
 				c <- e
 			}
 		}
-
+		
 		// Signal that from now on, Channel.send() should call
 		// Channel.sendClosed()
 		atomic.StoreInt32(&ch.closed, 1)
-
+		
 		// Notify RPC if we're selecting
 		if e != nil {
 			ch.errors <- e
 		}
-
+		
 		ch.consumers.close()
-
+		
 		for _, c := range ch.closes {
 			close(c)
 		}
-
+		
 		for _, c := range ch.flows {
 			close(c)
 		}
-
+		
 		for _, c := range ch.returns {
 			close(c)
 		}
-
+		
 		for _, c := range ch.cancels {
 			close(c)
 		}
-
+		
 		// Set the slices to nil to prevent the dispatch() range from sending on
 		// the now closed channels after we release the notifyM mutex
 		ch.flows = nil
 		ch.closes = nil
 		ch.returns = nil
 		ch.cancels = nil
-
+		
 		if ch.confirms != nil {
 			ch.confirms.Close()
 		}
-
+		
 		close(ch.errors)
 		ch.noNotify = true
 	})
@@ -157,7 +157,7 @@ func (ch *Channel) send(msg message) (err error) {
 	if atomic.LoadInt32(&ch.closed) == 1 {
 		return ch.sendClosed(msg)
 	}
-
+	
 	return ch.sendOpen(msg)
 }
 
@@ -171,7 +171,7 @@ func (ch *Channel) call(req message, res ...message) error {
 	if err := ch.send(req); err != nil {
 		return err
 	}
-
+	
 	if req.wait() {
 		select {
 		case e, ok := <-ch.errors:
@@ -179,7 +179,7 @@ func (ch *Channel) call(req message, res ...message) error {
 				return e
 			}
 			return ErrClosed
-
+		
 		case msg := <-ch.rpc:
 			if msg != nil {
 				for _, try := range res {
@@ -199,7 +199,7 @@ func (ch *Channel) call(req message, res ...message) error {
 			return ErrClosed
 		}
 	}
-
+	
 	return nil
 }
 
@@ -212,7 +212,7 @@ func (ch *Channel) sendClosed(msg message) (err error) {
 			Method:    msg,
 		})
 	}
-
+	
 	return ErrClosed
 }
 
@@ -220,7 +220,7 @@ func (ch *Channel) sendOpen(msg message) (err error) {
 	if content, ok := msg.(messageWithContent); ok {
 		props, body := content.getContent()
 		class, _ := content.id()
-
+		
 		// catch client max frame size==0 and server max frame size==0
 		// set size to length of what we're trying to publish
 		var size int
@@ -229,14 +229,14 @@ func (ch *Channel) sendOpen(msg message) (err error) {
 		} else {
 			size = len(body)
 		}
-
+		
 		if err = ch.connection.send(&methodFrame{
 			ChannelId: ch.id,
 			Method:    content,
 		}); err != nil {
 			return
 		}
-
+		
 		if err = ch.connection.send(&headerFrame{
 			ChannelId:  ch.id,
 			ClassId:    class,
@@ -245,13 +245,13 @@ func (ch *Channel) sendOpen(msg message) (err error) {
 		}); err != nil {
 			return
 		}
-
+		
 		// chunk body into size (max frame size - frame header size)
 		for i, j := 0, size; i < len(body); i, j = j, j+size {
 			if j > len(body) {
 				j = len(body)
 			}
-
+			
 			if err = ch.connection.send(&bodyFrame{
 				ChannelId: ch.id,
 				Body:      body[i:j],
@@ -265,7 +265,7 @@ func (ch *Channel) sendOpen(msg message) (err error) {
 			Method:    msg,
 		})
 	}
-
+	
 	return
 }
 
@@ -281,7 +281,7 @@ func (ch *Channel) dispatch(msg message) {
 		ch.send(&channelCloseOk{})
 		ch.m.Unlock()
 		ch.connection.closeChannel(ch, newError(m.ReplyCode, m.ReplyText))
-
+	
 	case *channelFlow:
 		ch.notifyM.RLock()
 		for _, c := range ch.flows {
@@ -289,7 +289,7 @@ func (ch *Channel) dispatch(msg message) {
 		}
 		ch.notifyM.RUnlock()
 		ch.send(&channelFlowOk{Active: m.Active})
-
+	
 	case *basicCancel:
 		ch.notifyM.RLock()
 		for _, c := range ch.cancels {
@@ -297,7 +297,7 @@ func (ch *Channel) dispatch(msg message) {
 		}
 		ch.notifyM.RUnlock()
 		ch.consumers.cancel(m.ConsumerTag)
-
+	
 	case *basicReturn:
 		ret := newReturn(*m)
 		ch.notifyM.RLock()
@@ -305,7 +305,7 @@ func (ch *Channel) dispatch(msg message) {
 			c <- *ret
 		}
 		ch.notifyM.RUnlock()
-
+	
 	case *basicAck:
 		if ch.confirming {
 			if m.Multiple {
@@ -314,7 +314,7 @@ func (ch *Channel) dispatch(msg message) {
 				ch.confirms.One(Confirmation{m.DeliveryTag, true})
 			}
 		}
-
+	
 	case *basicNack:
 		if ch.confirming {
 			if m.Multiple {
@@ -323,12 +323,12 @@ func (ch *Channel) dispatch(msg message) {
 				ch.confirms.One(Confirmation{m.DeliveryTag, false})
 			}
 		}
-
+	
 	case *basicDeliver:
 		ch.consumers.send(m.ConsumerTag, newDelivery(ch, m))
 		// TODO log failed consumer and close channel, this can happen when
 		// deliveries are in flight and a no-wait cancel has happened
-
+	
 	default:
 		ch.rpc <- msg
 	}
@@ -347,19 +347,19 @@ func (ch *Channel) recvMethod(f frame) error {
 			ch.message = msg
 			return ch.transition((*Channel).recvHeader)
 		}
-
+		
 		ch.dispatch(frame.Method) // termination state
 		return ch.transition((*Channel).recvMethod)
-
+	
 	case *headerFrame:
 		// drop
 		return ch.transition((*Channel).recvMethod)
-
+	
 	case *bodyFrame:
 		// drop
 		return ch.transition((*Channel).recvMethod)
 	}
-
+	
 	panic("unexpected frame type")
 }
 
@@ -368,23 +368,23 @@ func (ch *Channel) recvHeader(f frame) error {
 	case *methodFrame:
 		// interrupt content and handle method
 		return ch.recvMethod(f)
-
+	
 	case *headerFrame:
 		// start collecting if we expect body frames
 		ch.header = frame
-
+		
 		if frame.Size == 0 {
 			ch.message.setContent(ch.header.Properties, ch.body)
 			ch.dispatch(ch.message) // termination state
 			return ch.transition((*Channel).recvMethod)
 		}
 		return ch.transition((*Channel).recvContent)
-
+	
 	case *bodyFrame:
 		// drop and reset
 		return ch.transition((*Channel).recvMethod)
 	}
-
+	
 	panic("unexpected frame type")
 }
 
@@ -395,26 +395,26 @@ func (ch *Channel) recvContent(f frame) error {
 	case *methodFrame:
 		// interrupt content and handle method
 		return ch.recvMethod(f)
-
+	
 	case *headerFrame:
 		// drop and reset
 		return ch.transition((*Channel).recvMethod)
-
+	
 	case *bodyFrame:
 		if cap(ch.body) == 0 {
 			ch.body = make([]byte, 0, ch.header.Size)
 		}
 		ch.body = append(ch.body, frame.Body...)
-
+		
 		if uint64(len(ch.body)) >= ch.header.Size {
 			ch.message.setContent(ch.header.Properties, ch.body)
 			ch.dispatch(ch.message) // termination state
 			return ch.transition((*Channel).recvMethod)
 		}
-
+		
 		return ch.transition((*Channel).recvContent)
 	}
-
+	
 	panic("unexpected frame type")
 }
 
@@ -447,13 +447,13 @@ graceful close, no error will be sent.
 func (ch *Channel) NotifyClose(c chan *Error) chan *Error {
 	ch.notifyM.Lock()
 	defer ch.notifyM.Unlock()
-
+	
 	if ch.noNotify {
 		close(c)
 	} else {
 		ch.closes = append(ch.closes, c)
 	}
-
+	
 	return c
 }
 
@@ -493,13 +493,13 @@ basic.ack messages from getting rate limited with your basic.publish messages.
 func (ch *Channel) NotifyFlow(c chan bool) chan bool {
 	ch.notifyM.Lock()
 	defer ch.notifyM.Unlock()
-
+	
 	if ch.noNotify {
 		close(c)
 	} else {
 		ch.flows = append(ch.flows, c)
 	}
-
+	
 	return c
 }
 
@@ -515,13 +515,13 @@ information about why the publishing failed.
 func (ch *Channel) NotifyReturn(c chan Return) chan Return {
 	ch.notifyM.Lock()
 	defer ch.notifyM.Unlock()
-
+	
 	if ch.noNotify {
 		close(c)
 	} else {
 		ch.returns = append(ch.returns, c)
 	}
-
+	
 	return c
 }
 
@@ -536,13 +536,13 @@ The subscription tag is returned to the listener.
 func (ch *Channel) NotifyCancel(c chan string) chan string {
 	ch.notifyM.Lock()
 	defer ch.notifyM.Unlock()
-
+	
 	if ch.noNotify {
 		close(c)
 	} else {
 		ch.cancels = append(ch.cancels, c)
 	}
-
+	
 	return c
 }
 
@@ -554,7 +554,7 @@ For strict ordering, use NotifyPublish instead.
 */
 func (ch *Channel) NotifyConfirm(ack, nack chan uint64) (chan uint64, chan uint64) {
 	confirms := ch.NotifyPublish(make(chan Confirmation, cap(ack)+cap(nack)))
-
+	
 	go func() {
 		for c := range confirms {
 			if c.Ack {
@@ -568,7 +568,7 @@ func (ch *Channel) NotifyConfirm(ack, nack chan uint64) (chan uint64, chan uint6
 			close(nack)
 		}
 	}()
-
+	
 	return ack, nack
 }
 
@@ -598,15 +598,15 @@ Channel.Close() or Connection.Close().
 func (ch *Channel) NotifyPublish(confirm chan Confirmation) chan Confirmation {
 	ch.notifyM.Lock()
 	defer ch.notifyM.Unlock()
-
+	
 	if ch.noNotify {
 		close(confirm)
 	} else {
 		ch.confirms.Listen(confirm)
 	}
-
+	
 	return confirm
-
+	
 }
 
 /*
@@ -680,18 +680,18 @@ func (ch *Channel) Cancel(consumer string, noWait bool) error {
 		NoWait:      noWait,
 	}
 	res := &basicCancelOk{}
-
+	
 	if err := ch.call(req, res); err != nil {
 		return err
 	}
-
+	
 	if req.wait() {
 		ch.consumers.cancel(res.ConsumerTag)
 	} else {
 		// Potentially could drop deliveries in flight
 		ch.consumers.cancel(consumer)
 	}
-
+	
 	return nil
 }
 
@@ -752,7 +752,7 @@ func (ch *Channel) QueueDeclare(name string, durable, autoDelete, exclusive, noW
 	if err := args.Validate(); err != nil {
 		return Queue{}, err
 	}
-
+	
 	req := &queueDeclare{
 		Queue:      name,
 		Passive:    false,
@@ -763,11 +763,11 @@ func (ch *Channel) QueueDeclare(name string, durable, autoDelete, exclusive, noW
 		Arguments:  args,
 	}
 	res := &queueDeclareOk{}
-
+	
 	if err := ch.call(req, res); err != nil {
 		return Queue{}, err
 	}
-
+	
 	if req.wait() {
 		return Queue{
 			Name:      res.Queue,
@@ -775,7 +775,7 @@ func (ch *Channel) QueueDeclare(name string, durable, autoDelete, exclusive, noW
 			Consumers: int(res.ConsumerCount),
 		}, nil
 	}
-
+	
 	return Queue{Name: name}, nil
 }
 
@@ -792,7 +792,7 @@ func (ch *Channel) QueueDeclarePassive(name string, durable, autoDelete, exclusi
 	if err := args.Validate(); err != nil {
 		return Queue{}, err
 	}
-
+	
 	req := &queueDeclare{
 		Queue:      name,
 		Passive:    true,
@@ -803,11 +803,11 @@ func (ch *Channel) QueueDeclarePassive(name string, durable, autoDelete, exclusi
 		Arguments:  args,
 	}
 	res := &queueDeclareOk{}
-
+	
 	if err := ch.call(req, res); err != nil {
 		return Queue{}, err
 	}
-
+	
 	if req.wait() {
 		return Queue{
 			Name:      res.Queue,
@@ -815,7 +815,7 @@ func (ch *Channel) QueueDeclarePassive(name string, durable, autoDelete, exclusi
 			Consumers: int(res.ConsumerCount),
 		}, nil
 	}
-
+	
 	return Queue{Name: name}, nil
 }
 
@@ -840,15 +840,15 @@ func (ch *Channel) QueueInspect(name string) (Queue, error) {
 		Passive: true,
 	}
 	res := &queueDeclareOk{}
-
+	
 	err := ch.call(req, res)
-
+	
 	state := Queue{
 		Name:      name,
 		Messages:  int(res.MessageCount),
 		Consumers: int(res.ConsumerCount),
 	}
-
+	
 	return state, err
 }
 
@@ -900,7 +900,7 @@ func (ch *Channel) QueueBind(name, key, exchange string, noWait bool, args Table
 	if err := args.Validate(); err != nil {
 		return err
 	}
-
+	
 	return ch.call(
 		&queueBind{
 			Queue:      name,
@@ -925,7 +925,7 @@ func (ch *Channel) QueueUnbind(name, key, exchange string, args Table) error {
 	if err := args.Validate(); err != nil {
 		return err
 	}
-
+	
 	return ch.call(
 		&queueUnbind{
 			Queue:      name,
@@ -953,9 +953,9 @@ func (ch *Channel) QueuePurge(name string, noWait bool) (int, error) {
 		NoWait: noWait,
 	}
 	res := &queuePurgeOk{}
-
+	
 	err := ch.call(req, res)
-
+	
 	return int(res.MessageCount), err
 }
 
@@ -986,9 +986,9 @@ func (ch *Channel) QueueDelete(name string, ifUnused, ifEmpty, noWait bool) (int
 		NoWait:   noWait,
 	}
 	res := &queueDeleteOk{}
-
+	
 	err := ch.call(req, res)
-
+	
 	return int(res.MessageCount), err
 }
 
@@ -1053,15 +1053,15 @@ func (ch *Channel) Consume(queue, consumer string, autoAck, exclusive, noLocal, 
 	// When we return from ch.call, there may be a delivery already for the
 	// consumer that hasn't been added to the consumer hash yet.  Because of
 	// this, we never rely on the server picking a consumer tag for us.
-
+	
 	if err := args.Validate(); err != nil {
 		return nil, err
 	}
-
+	
 	if consumer == "" {
 		consumer = uniqueConsumerTag()
 	}
-
+	
 	req := &basicConsume{
 		Queue:       queue,
 		ConsumerTag: consumer,
@@ -1072,16 +1072,16 @@ func (ch *Channel) Consume(queue, consumer string, autoAck, exclusive, noLocal, 
 		Arguments:   args,
 	}
 	res := &basicConsumeOk{}
-
+	
 	deliveries := make(chan Delivery)
-
+	
 	ch.consumers.add(consumer, deliveries)
-
+	
 	if err := ch.call(req, res); err != nil {
 		ch.consumers.cancel(consumer)
 		return nil, err
 	}
-
+	
 	return (<-chan Delivery)(deliveries), nil
 }
 
@@ -1141,7 +1141,7 @@ func (ch *Channel) ExchangeDeclare(name, kind string, durable, autoDelete, inter
 	if err := args.Validate(); err != nil {
 		return err
 	}
-
+	
 	return ch.call(
 		&exchangeDeclare{
 			Exchange:   name,
@@ -1170,7 +1170,7 @@ func (ch *Channel) ExchangeDeclarePassive(name, kind string, durable, autoDelete
 	if err := args.Validate(); err != nil {
 		return err
 	}
-
+	
 	return ch.call(
 		&exchangeDeclare{
 			Exchange:   name,
@@ -1246,7 +1246,7 @@ func (ch *Channel) ExchangeBind(destination, key, source string, noWait bool, ar
 	if err := args.Validate(); err != nil {
 		return err
 	}
-
+	
 	return ch.call(
 		&exchangeBind{
 			Destination: destination,
@@ -1277,7 +1277,7 @@ func (ch *Channel) ExchangeUnbind(destination, key, source string, noWait bool, 
 	if err := args.Validate(); err != nil {
 		return err
 	}
-
+	
 	return ch.call(
 		&exchangeUnbind{
 			Destination: destination,
@@ -1327,10 +1327,10 @@ func (ch *Channel) Publish(exchange, key string, mandatory, immediate bool, msg 
 	if err := msg.Headers.Validate(); err != nil {
 		return err
 	}
-
+	
 	ch.m.Lock()
 	defer ch.m.Unlock()
-
+	
 	if err := ch.send(&basicPublish{
 		Exchange:   exchange,
 		RoutingKey: key,
@@ -1355,11 +1355,11 @@ func (ch *Channel) Publish(exchange, key string, mandatory, immediate bool, msg 
 	}); err != nil {
 		return err
 	}
-
+	
 	if ch.confirming {
 		ch.confirms.Publish()
 	}
-
+	
 	return nil
 }
 
@@ -1385,15 +1385,15 @@ func (ch *Channel) Get(queue string, autoAck bool) (msg Delivery, ok bool, err e
 	req := &basicGet{Queue: queue, NoAck: autoAck}
 	res := &basicGetOk{}
 	empty := &basicGetEmpty{}
-
+	
 	if err := ch.call(req, res, empty); err != nil {
 		return Delivery{}, false, err
 	}
-
+	
 	if res.DeliveryTag > 0 {
 		return *(newDelivery(ch, res)), true, nil
 	}
-
+	
 	return Delivery{}, false, nil
 }
 
@@ -1510,11 +1510,11 @@ func (ch *Channel) Confirm(noWait bool) error {
 	); err != nil {
 		return err
 	}
-
+	
 	ch.confirmM.Lock()
 	ch.confirming = true
 	ch.confirmM.Unlock()
-
+	
 	return nil
 }
 
@@ -1550,7 +1550,7 @@ See also Delivery.Ack
 func (ch *Channel) Ack(tag uint64, multiple bool) error {
 	ch.m.Lock()
 	defer ch.m.Unlock()
-
+	
 	return ch.send(&basicAck{
 		DeliveryTag: tag,
 		Multiple:    multiple,
@@ -1567,7 +1567,7 @@ See also Delivery.Nack
 func (ch *Channel) Nack(tag uint64, multiple bool, requeue bool) error {
 	ch.m.Lock()
 	defer ch.m.Unlock()
-
+	
 	return ch.send(&basicNack{
 		DeliveryTag: tag,
 		Multiple:    multiple,
@@ -1585,7 +1585,7 @@ See also Delivery.Reject
 func (ch *Channel) Reject(tag uint64, requeue bool) error {
 	ch.m.Lock()
 	defer ch.m.Unlock()
-
+	
 	return ch.send(&basicReject{
 		DeliveryTag: tag,
 		Requeue:     requeue,

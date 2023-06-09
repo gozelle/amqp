@@ -1,7 +1,7 @@
 // Copyright (c) 2012, Sean Treadway, SoundCloud Ltd.
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
-// Source code and contact info at http://github.com/streadway/amqp
+// Source code and contact info at http://github.com/gozelle/amqp
 
 package amqp
 
@@ -17,7 +17,7 @@ type Return struct {
 	ReplyText  string // description
 	Exchange   string // basic.publish exchange
 	RoutingKey string // basic.publish routing key
-
+	
 	// Properties
 	ContentType     string    // MIME content type
 	ContentEncoding string    // MIME content encoding
@@ -32,19 +32,19 @@ type Return struct {
 	Type            string    // application use - message type name
 	UserId          string    // application use - creating user id
 	AppId           string    // application use - creating application
-
+	
 	Body []byte
 }
 
 func newReturn(msg basicReturn) *Return {
 	props, body := msg.getContent()
-
+	
 	return &Return{
 		ReplyCode:  msg.ReplyCode,
 		ReplyText:  msg.ReplyText,
 		Exchange:   msg.Exchange,
 		RoutingKey: msg.RoutingKey,
-
+		
 		Headers:         props.Headers,
 		ContentType:     props.ContentType,
 		ContentEncoding: props.ContentEncoding,
@@ -58,7 +58,7 @@ func newReturn(msg basicReturn) *Return {
 		Type:            props.Type,
 		UserId:          props.UserId,
 		AppId:           props.AppId,
-
+		
 		Body: body,
 	}
 }

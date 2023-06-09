@@ -6,8 +6,8 @@ import (
 	"log"
 	"os"
 	"time"
-
-	"github.com/streadway/amqp"
+	
+	"github.com/gozelle/amqp"
 )
 
 // This exports a Session object that wraps this library. It
@@ -50,10 +50,10 @@ type Session struct {
 const (
 	// When reconnecting to the server after connection failure
 	reconnectDelay = 5 * time.Second
-
+	
 	// When setting up the channel after a channel exception
 	reInitDelay = 2 * time.Second
-
+	
 	// When resending messages the server didn't confirm
 	resendDelay = 5 * time.Second
 )
@@ -82,12 +82,12 @@ func (session *Session) handleReconnect(addr string) {
 	for {
 		session.isReady = false
 		log.Println("Attempting to connect")
-
+		
 		conn, err := session.connect(addr)
-
+		
 		if err != nil {
 			log.Println("Failed to connect. Retrying...")
-
+			
 			select {
 			case <-session.done:
 				return
@@ -95,7 +95,7 @@ func (session *Session) handleReconnect(addr string) {
 			}
 			continue
 		}
-
+		
 		if done := session.handleReInit(conn); done {
 			break
 		}
@@ -105,11 +105,11 @@ func (session *Session) handleReconnect(addr string) {
 // connect will create a new AMQP connection
 func (session *Session) connect(addr string) (*amqp.Connection, error) {
 	conn, err := amqp.Dial(addr)
-
+	
 	if err != nil {
 		return nil, err
 	}
-
+	
 	session.changeConnection(conn)
 	log.Println("Connected!")
 	return conn, nil
@@ -120,12 +120,12 @@ func (session *Session) connect(addr string) (*amqp.Connection, error) {
 func (session *Session) handleReInit(conn *amqp.Connection) bool {
 	for {
 		session.isReady = false
-
+		
 		err := session.init(conn)
-
+		
 		if err != nil {
 			log.Println("Failed to initialize channel. Retrying...")
-
+			
 			select {
 			case <-session.done:
 				return true
@@ -133,7 +133,7 @@ func (session *Session) handleReInit(conn *amqp.Connection) bool {
 			}
 			continue
 		}
-
+		
 		select {
 		case <-session.done:
 			return true
@@ -149,13 +149,13 @@ func (session *Session) handleReInit(conn *amqp.Connection) bool {
 // init will initialize channel & declare queue
 func (session *Session) init(conn *amqp.Connection) error {
 	ch, err := conn.Channel()
-
+	
 	if err != nil {
 		return err
 	}
-
+	
 	err = ch.Confirm(false)
-
+	
 	if err != nil {
 		return err
 	}
@@ -167,15 +167,15 @@ func (session *Session) init(conn *amqp.Connection) error {
 		false, // No-wait
 		nil,   // Arguments
 	)
-
+	
 	if err != nil {
 		return err
 	}
-
+	
 	session.changeChannel(ch)
 	session.isReady = true
 	log.Println("Setup!")
-
+	
 	return nil
 }
 

@@ -14,8 +14,8 @@ import (
 	"io"
 	"log"
 	"os"
-
-	"github.com/streadway/amqp"
+	
+	"github.com/gozelle/amqp"
 	"golang.org/x/net/context"
 )
 
@@ -45,11 +45,11 @@ func (s session) Close() error {
 // redial continually connects to the URL, exiting the program when no longer possible
 func redial(ctx context.Context, url string) chan chan session {
 	sessions := make(chan chan session)
-
+	
 	go func() {
 		sess := make(chan session)
 		defer close(sessions)
-
+		
 		for {
 			select {
 			case sessions <- sess:
@@ -57,21 +57,21 @@ func redial(ctx context.Context, url string) chan chan session {
 				log.Println("shutting down session factory")
 				return
 			}
-
+			
 			conn, err := amqp.Dial(url)
 			if err != nil {
 				log.Fatalf("cannot (re)dial: %v: %q", err, url)
 			}
-
+			
 			ch, err := conn.Channel()
 			if err != nil {
 				log.Fatalf("cannot create channel: %v", err)
 			}
-
+			
 			if err := ch.ExchangeDeclare(exchange, "fanout", false, true, false, false, nil); err != nil {
 				log.Fatalf("cannot declare fanout exchange: %v", err)
 			}
-
+			
 			select {
 			case sess <- session{conn, ch}:
 			case <-ctx.Done():
@@ -80,7 +80,7 @@ func redial(ctx context.Context, url string) chan chan session {
 			}
 		}
 	}()
-
+	
 	return sessions
 }
 
@@ -94,9 +94,9 @@ func publish(sessions chan chan session, messages <-chan message) {
 			pending = make(chan message, 1)
 			confirm = make(chan amqp.Confirmation, 1)
 		)
-
+		
 		pub := <-session
-
+		
 		// publisher confirms for this channel/connection
 		if err := pub.Confirm(false); err != nil {
 			log.Printf("publisher confirms not supported")
@@ -104,9 +104,9 @@ func publish(sessions chan chan session, messages <-chan message) {
 		} else {
 			pub.NotifyPublish(confirm)
 		}
-
+		
 		log.Printf("publishing...")
-
+	
 	Publish:
 		for {
 			var body message
@@ -119,7 +119,7 @@ func publish(sessions chan chan session, messages <-chan message) {
 					log.Printf("nack message %d, body: %q", confirmed.DeliveryTag, string(body))
 				}
 				reading = messages
-
+			
 			case body = <-pending:
 				routingKey := "ignored for fanout exchanges, application dependent for other exchanges"
 				err := pub.Publish(exchange, routingKey, false, false, amqp.Publishing{
@@ -131,7 +131,7 @@ func publish(sessions chan chan session, messages <-chan message) {
 					pub.Close()
 					break Publish
 				}
-
+			
 			case body, running = <-reading:
 				// all messages consumed
 				if !running {
@@ -159,29 +159,29 @@ func identity() string {
 // subscribe consumes deliveries from an exclusive queue from a fanout exchange and sends to the application specific messages chan.
 func subscribe(sessions chan chan session, messages chan<- message) {
 	queue := identity()
-
+	
 	for session := range sessions {
 		sub := <-session
-
+		
 		if _, err := sub.QueueDeclare(queue, false, true, true, false, nil); err != nil {
 			log.Printf("cannot consume from exclusive queue: %q, %v", queue, err)
 			return
 		}
-
+		
 		routingKey := "application specific routing key for fancy toplogies"
 		if err := sub.QueueBind(queue, routingKey, exchange, false, nil); err != nil {
 			log.Printf("cannot consume without a binding to exchange: %q, %v", exchange, err)
 			return
 		}
-
+		
 		deliveries, err := sub.Consume(queue, "", false, true, false, false, nil)
 		if err != nil {
 			log.Printf("cannot consume from: %q, %v", queue, err)
 			return
 		}
-
+		
 		log.Printf("subscribed...")
-
+		
 		for msg := range deliveries {
 			messages <- message(msg.Body)
 			sub.Ack(msg.DeliveryTag, false)
@@ -217,18 +217,18 @@ func write(w io.Writer) chan<- message {
 
 func main() {
 	flag.Parse()
-
+	
 	ctx, done := context.WithCancel(context.Background())
-
+	
 	go func() {
 		publish(redial(ctx, *url), read(os.Stdin))
 		done()
 	}()
-
+	
 	go func() {
 		subscribe(redial(ctx, *url), write(os.Stdout))
 		done()
 	}()
-
+	
 	<-ctx.Done()
 }

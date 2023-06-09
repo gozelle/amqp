@@ -1,7 +1,7 @@
 // Copyright (c) 2012, Sean Treadway, SoundCloud Ltd.
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
-// Source code and contact info at http://github.com/streadway/amqp
+// Source code and contact info at http://github.com/gozelle/amqp
 
 package amqp
 
@@ -54,31 +54,31 @@ type URI struct {
 //
 func ParseURI(uri string) (URI, error) {
 	builder := defaultURI
-
+	
 	if strings.Contains(uri, " ") == true {
 		return builder, errURIWhitespace
 	}
-
+	
 	u, err := url.Parse(uri)
 	if err != nil {
 		return builder, err
 	}
-
+	
 	defaultPort, okScheme := schemePorts[u.Scheme]
-
+	
 	if okScheme {
 		builder.Scheme = u.Scheme
 	} else {
 		return builder, errURIScheme
 	}
-
+	
 	host := u.Hostname()
 	port := u.Port()
-
+	
 	if host != "" {
 		builder.Host = host
 	}
-
+	
 	if port != "" {
 		port32, err := strconv.ParseInt(port, 10, 32)
 		if err != nil {
@@ -88,14 +88,14 @@ func ParseURI(uri string) (URI, error) {
 	} else {
 		builder.Port = defaultPort
 	}
-
+	
 	if u.User != nil {
 		builder.Username = u.User.Username()
 		if password, ok := u.User.Password(); ok {
 			builder.Password = password
 		}
 	}
-
+	
 	if u.Path != "" {
 		if strings.HasPrefix(u.Path, "/") {
 			if u.Host == "" && strings.HasPrefix(u.Path, "///") {
@@ -112,7 +112,7 @@ func ParseURI(uri string) (URI, error) {
 			builder.Vhost = u.Path
 		}
 	}
-
+	
 	return builder, nil
 }
 
@@ -139,19 +139,19 @@ func (uri URI) String() string {
 	if err != nil {
 		return err.Error()
 	}
-
+	
 	authority.Scheme = uri.Scheme
-
+	
 	if uri.Username != defaultURI.Username || uri.Password != defaultURI.Password {
 		authority.User = url.User(uri.Username)
-
+		
 		if uri.Password != defaultURI.Password {
 			authority.User = url.UserPassword(uri.Username, uri.Password)
 		}
 	}
-
+	
 	authority.Host = net.JoinHostPort(uri.Host, strconv.Itoa(uri.Port))
-
+	
 	if defaultPort, found := schemePorts[uri.Scheme]; !found || defaultPort != uri.Port {
 		authority.Host = net.JoinHostPort(uri.Host, strconv.Itoa(uri.Port))
 	} else {
@@ -162,7 +162,7 @@ func (uri URI) String() string {
 		// form of "[::1]:", so we use TrimSuffix() to remove the extra ":".
 		authority.Host = strings.TrimSuffix(net.JoinHostPort(uri.Host, ""), ":")
 	}
-
+	
 	if uri.Vhost != defaultURI.Vhost {
 		// Make sure net/url does not double escape, e.g.
 		// "%2F" does not become "%252F".
@@ -171,6 +171,6 @@ func (uri URI) String() string {
 	} else {
 		authority.Path = "/"
 	}
-
+	
 	return authority.String()
 }

@@ -1,7 +1,7 @@
 // Copyright (c) 2012, Sean Treadway, SoundCloud Ltd.
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
-// Source code and contact info at http://github.com/streadway/amqp
+// Source code and contact info at http://github.com/gozelle/amqp
 
 package amqp
 
@@ -22,41 +22,41 @@ const (
 var (
 	// ErrClosed is returned when the channel or connection is not open
 	ErrClosed = &Error{Code: ChannelError, Reason: "channel/connection is not open"}
-
+	
 	// ErrChannelMax is returned when Connection.Channel has been called enough
 	// times that all channel IDs have been exhausted in the client or the
 	// server.
 	ErrChannelMax = &Error{Code: ChannelError, Reason: "channel id space exhausted"}
-
+	
 	// ErrSASL is returned from Dial when the authentication mechanism could not
 	// be negoated.
 	ErrSASL = &Error{Code: AccessRefused, Reason: "SASL could not negotiate a shared mechanism"}
-
+	
 	// ErrCredentials is returned when the authenticated client is not authorized
 	// to any vhost.
 	ErrCredentials = &Error{Code: AccessRefused, Reason: "username or password not allowed"}
-
+	
 	// ErrVhost is returned when the authenticated user is not permitted to
 	// access the requested Vhost.
 	ErrVhost = &Error{Code: AccessRefused, Reason: "no access to this vhost"}
-
+	
 	// ErrSyntax is hard protocol error, indicating an unsupported protocol,
 	// implementation or encoding.
 	ErrSyntax = &Error{Code: SyntaxError, Reason: "invalid field or value inside of a frame"}
-
+	
 	// ErrFrame is returned when the protocol frame cannot be read from the
 	// server, indicating an unsupported protocol or unsupported frame type.
 	ErrFrame = &Error{Code: FrameError, Reason: "frame could not be parsed"}
-
+	
 	// ErrCommandInvalid is returned when the server sends an unexpected response
 	// to this requested message type. This indicates a bug in this client.
 	ErrCommandInvalid = &Error{Code: CommandInvalid, Reason: "unexpected command received"}
-
+	
 	// ErrUnexpectedFrame is returned when something other than a method or
 	// heartbeat frame is delivered to the Connection, indicating a bug in the
 	// client.
 	ErrUnexpectedFrame = &Error{Code: UnexpectedFrame, Reason: "unexpected frame received"}
-
+	
 	// ErrFieldType is returned when writing a message containing a Go type unsupported by AMQP.
 	ErrFieldType = &Error{Code: SyntaxError, Reason: "unsupported table field type"}
 )
@@ -151,7 +151,7 @@ type Publishing struct {
 	// Application or exchange specific fields,
 	// the headers exchange will inspect this field.
 	Headers Table
-
+	
 	// Properties
 	ContentType     string    // MIME content type
 	ContentEncoding string    // MIME content encoding
@@ -165,7 +165,7 @@ type Publishing struct {
 	Type            string    // message type name
 	UserId          string    // creating user id - ex: "guest"
 	AppId           string    // creating application id
-
+	
 	// The application specific payload of the message
 	Body []byte
 }
@@ -228,7 +228,7 @@ func validateField(f interface{}) error {
 	switch fv := f.(type) {
 	case nil, bool, byte, int, int16, int32, int64, float32, float64, string, []byte, Decimal, time.Time:
 		return nil
-
+	
 	case []interface{}:
 		for _, v := range fv {
 			if err := validateField(v); err != nil {
@@ -236,7 +236,7 @@ func validateField(f interface{}) error {
 			}
 		}
 		return nil
-
+	
 	case Table:
 		for k, v := range fv {
 			if err := validateField(v); err != nil {
@@ -245,7 +245,7 @@ func validateField(f interface{}) error {
 		}
 		return nil
 	}
-
+	
 	return fmt.Errorf("value %T not supported", f)
 }
 

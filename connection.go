@@ -1,7 +1,7 @@
 // Copyright (c) 2012, Sean Treadway, SoundCloud Ltd.
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
-// Source code and contact info at http://github.com/streadway/amqp
+// Source code and contact info at http://github.com/gozelle/amqp
 
 package amqp
 
@@ -20,10 +20,10 @@ import (
 
 const (
 	maxChannelMax = (2 << 15) - 1
-
+	
 	defaultHeartbeat         = 10 * time.Second
 	defaultConnectionTimeout = 30 * time.Second
-	defaultProduct           = "https://github.com/streadway/amqp"
+	defaultProduct           = "https://github.com/gozelle/amqp"
 	defaultVersion           = "β"
 	// Safer default that makes channel leaks a lot easier to spot
 	// before they create operational headaches. See https://github.com/rabbitmq/rabbitmq-server/issues/1593.
@@ -39,31 +39,31 @@ type Config struct {
 	// mechanism used on the Connection object.
 	// If SASL is nil, PlainAuth from the URL is used.
 	SASL []Authentication
-
+	
 	// Vhost specifies the namespace of permissions, exchanges, queues and
 	// bindings on the server.  Dial sets this to the path parsed from the URL.
 	Vhost string
-
+	
 	ChannelMax int           // 0 max channels means 2^16 - 1
 	FrameSize  int           // 0 max bytes means unlimited
 	Heartbeat  time.Duration // less than 1s uses the server's interval
-
+	
 	// TLSClientConfig specifies the client configuration of the TLS connection
 	// when establishing a tls transport.
 	// If the URL uses an amqps scheme, then an empty tls.Config with the
 	// ServerName from the URL is used.
 	TLSClientConfig *tls.Config
-
+	
 	// Properties is table of properties that the client advertises to the server.
 	// This is an optional setting - if the application does not set this,
 	// the underlying library will use a generic set of client properties.
 	Properties Table
-
+	
 	// Connection locale that we expect to always be en_US
 	// Even though servers must return it as per the AMQP 0-9-1 spec,
 	// we are not aware of it being used other than to satisfy the spec requirements
 	Locale string
-
+	
 	// Dial returns a net.Conn prepared for a TLS handshake with TSLClientConfig,
 	// then an AMQP connection handshake.
 	// If Dial is nil, net.DialTimeout with a 30s connection and 30s deadline is
@@ -80,30 +80,30 @@ type Connection struct {
 	destructor sync.Once  // shutdown once
 	sendM      sync.Mutex // conn writer mutex
 	m          sync.Mutex // struct field mutex
-
+	
 	conn io.ReadWriteCloser
-
+	
 	rpc       chan message
 	writer    *writer
 	sends     chan time.Time     // timestamps of each frame sent
 	deadlines chan readDeadliner // heartbeater updates read deadlines
-
+	
 	allocator *allocator // id generator valid after openTune
 	channels  map[uint16]*Channel
-
+	
 	noNotify bool // true when we will never notify again
 	closes   []chan *Error
 	blocks   []chan Blocking
-
+	
 	errors chan *Error
-
+	
 	Config Config // The negotiated Config after connection.open
-
+	
 	Major      int      // Server's major version
 	Minor      int      // Server's minor version
 	Properties Table    // Server properties
 	Locales    []string // Server locales
-
+	
 	closed int32 // Will be 1 if the connection is closed, 0 otherwise. Should only be accessed as atomic
 }
 
@@ -118,14 +118,14 @@ func DefaultDial(connectionTimeout time.Duration) func(network, addr string) (ne
 		if err != nil {
 			return nil, err
 		}
-
+		
 		// Heartbeating hasn't started yet, don't stall forever on a dead server.
 		// A deadline is set for TLS and AMQP handshaking. After AMQP is established,
 		// the deadline is cleared in openComplete.
 		if err := conn.SetDeadline(time.Now().Add(connectionTimeout)); err != nil {
 			return nil, err
 		}
-
+		
 		return conn, nil
 	}
 }
@@ -164,53 +164,53 @@ func DialTLS(url string, amqps *tls.Config) (*Connection, error) {
 func DialConfig(url string, config Config) (*Connection, error) {
 	var err error
 	var conn net.Conn
-
+	
 	uri, err := ParseURI(url)
 	if err != nil {
 		return nil, err
 	}
-
+	
 	if config.SASL == nil {
 		config.SASL = []Authentication{uri.PlainAuth()}
 	}
-
+	
 	if config.Vhost == "" {
 		config.Vhost = uri.Vhost
 	}
-
+	
 	addr := net.JoinHostPort(uri.Host, strconv.FormatInt(int64(uri.Port), 10))
-
+	
 	dialer := config.Dial
 	if dialer == nil {
 		dialer = DefaultDial(defaultConnectionTimeout)
 	}
-
+	
 	conn, err = dialer("tcp", addr)
 	if err != nil {
 		return nil, err
 	}
-
+	
 	if uri.Scheme == "amqps" {
 		if config.TLSClientConfig == nil {
 			config.TLSClientConfig = new(tls.Config)
 		}
-
+		
 		// If ServerName has not been specified in TLSClientConfig,
 		// set it to the URI host used for this connection.
 		if config.TLSClientConfig.ServerName == "" {
 			config.TLSClientConfig.ServerName = uri.Host
 		}
-
+		
 		client := tls.Client(conn, config.TLSClientConfig)
 		if err := client.Handshake(); err != nil {
-
+			
 			conn.Close()
 			return nil, err
 		}
-
+		
 		conn = client
 	}
-
+	
 	return Open(conn, config)
 }
 
@@ -272,13 +272,13 @@ re-run your setup process.
 func (c *Connection) NotifyClose(receiver chan *Error) chan *Error {
 	c.m.Lock()
 	defer c.m.Unlock()
-
+	
 	if c.noNotify {
 		close(receiver)
 	} else {
 		c.closes = append(c.closes, receiver)
 	}
-
+	
 	return receiver
 }
 
@@ -296,13 +296,13 @@ This optional extension is supported by the server when the
 func (c *Connection) NotifyBlocked(receiver chan Blocking) chan Blocking {
 	c.m.Lock()
 	defer c.m.Unlock()
-
+	
 	if c.noNotify {
 		close(receiver)
 	} else {
 		c.blocks = append(c.blocks, receiver)
 	}
-
+	
 	return receiver
 }
 
@@ -323,7 +323,7 @@ func (c *Connection) Close() error {
 	if c.IsClosed() {
 		return ErrClosed
 	}
-
+	
 	defer c.shutdown(nil)
 	return c.call(
 		&connectionClose{
@@ -338,7 +338,7 @@ func (c *Connection) closeWith(err *Error) error {
 	if c.IsClosed() {
 		return ErrClosed
 	}
-
+	
 	defer c.shutdown(err)
 	return c.call(
 		&connectionClose{
@@ -359,11 +359,11 @@ func (c *Connection) send(f frame) error {
 	if c.IsClosed() {
 		return ErrClosed
 	}
-
+	
 	c.sendM.Lock()
 	err := c.writer.WriteFrame(f)
 	c.sendM.Unlock()
-
+	
 	if err != nil {
 		// shutdown could be re-entrant from signaling notify chans
 		go c.shutdown(&Error{
@@ -379,37 +379,37 @@ func (c *Connection) send(f frame) error {
 		default:
 		}
 	}
-
+	
 	return err
 }
 
 func (c *Connection) shutdown(err *Error) {
 	atomic.StoreInt32(&c.closed, 1)
-
+	
 	c.destructor.Do(func() {
 		c.m.Lock()
 		defer c.m.Unlock()
-
+		
 		if err != nil {
 			for _, c := range c.closes {
 				c <- err
 			}
 		}
-
+		
 		if err != nil {
 			c.errors <- err
 		}
 		// Shutdown handler goroutine can still receive the result.
 		close(c.errors)
-
+		
 		for _, c := range c.closes {
 			close(c)
 		}
-
+		
 		for _, c := range c.blocks {
 			close(c)
 		}
-
+		
 		// Shutdown the channel, but do not use closeChannel() as it calls
 		// releaseChannel() which requires the connection lock.
 		//
@@ -418,9 +418,9 @@ func (c *Connection) shutdown(err *Error) {
 		for _, ch := range c.channels {
 			ch.shutdown(err)
 		}
-
+		
 		c.conn.Close()
-
+		
 		c.channels = map[uint16]*Channel{}
 		c.allocator = newAllocator(1, c.Config.ChannelMax)
 		c.noNotify = true
@@ -447,7 +447,7 @@ func (c *Connection) dispatch0(f frame) {
 				ChannelId: 0,
 				Method:    &connectionCloseOk{},
 			})
-
+			
 			c.shutdown(newError(m.ReplyCode, m.ReplyText))
 		case *connectionBlocked:
 			for _, c := range c.blocks {
@@ -472,7 +472,7 @@ func (c *Connection) dispatchN(f frame) {
 	c.m.Lock()
 	channel := c.channels[f.channel()]
 	c.m.Unlock()
-
+	
 	if channel != nil {
 		channel.recv(channel, f)
 	} else {
@@ -516,17 +516,17 @@ func (c *Connection) reader(r io.Reader) {
 	buf := bufio.NewReader(r)
 	frames := &reader{buf}
 	conn, haveDeadliner := r.(readDeadliner)
-
+	
 	for {
 		frame, err := frames.ReadFrame()
-
+		
 		if err != nil {
 			c.shutdown(&Error{Code: FrameError, Reason: err.Error()})
 			return
 		}
-
+		
 		c.demux(frame)
-
+		
 		if haveDeadliner {
 			select {
 			case c.deadlines <- conn:
@@ -542,16 +542,16 @@ func (c *Connection) reader(r io.Reader) {
 // jitter tolerance of 1s
 func (c *Connection) heartbeater(interval time.Duration, done chan *Error) {
 	const maxServerHeartbeatsInFlight = 3
-
+	
 	var sendTicks <-chan time.Time
 	if interval > 0 {
 		ticker := time.NewTicker(interval)
 		defer ticker.Stop()
 		sendTicks = ticker.C
 	}
-
+	
 	lastSent := time.Now()
-
+	
 	for {
 		select {
 		case at, stillSending := <-c.sends:
@@ -561,7 +561,7 @@ func (c *Connection) heartbeater(interval time.Duration, done chan *Error) {
 			} else {
 				return
 			}
-
+		
 		case at := <-sendTicks:
 			// When idle, fill the space with a heartbeat frame
 			if at.Sub(lastSent) > interval-time.Second {
@@ -571,14 +571,14 @@ func (c *Connection) heartbeater(interval time.Duration, done chan *Error) {
 					return
 				}
 			}
-
+		
 		case conn := <-c.deadlines:
 			// When reading, reset our side of the deadline, if we've negotiated one with
 			// a deadline that covers at least 2 server heartbeats
 			if interval > 0 {
 				conn.SetReadDeadline(time.Now().Add(maxServerHeartbeatsInFlight * interval))
 			}
-
+		
 		case <-done:
 			return
 		}
@@ -600,19 +600,19 @@ func (c *Connection) isCapable(featureName string) bool {
 func (c *Connection) allocateChannel() (*Channel, error) {
 	c.m.Lock()
 	defer c.m.Unlock()
-
+	
 	if c.IsClosed() {
 		return nil, ErrClosed
 	}
-
+	
 	id, ok := c.allocator.next()
 	if !ok {
 		return nil, ErrChannelMax
 	}
-
+	
 	ch := newChannel(c, uint16(id))
 	c.channels[uint16(id)] = ch
-
+	
 	return ch, nil
 }
 
@@ -621,7 +621,7 @@ func (c *Connection) allocateChannel() (*Channel, error) {
 func (c *Connection) releaseChannel(id uint16) {
 	c.m.Lock()
 	defer c.m.Unlock()
-
+	
 	delete(c.channels, id)
 	c.allocator.release(int(id))
 }
@@ -632,7 +632,7 @@ func (c *Connection) openChannel() (*Channel, error) {
 	if err != nil {
 		return nil, err
 	}
-
+	
 	if err := ch.open(); err != nil {
 		c.releaseChannel(ch.id)
 		return nil, err
@@ -666,14 +666,14 @@ func (c *Connection) call(req message, res ...message) error {
 			return err
 		}
 	}
-
+	
 	select {
 	case err, ok := <-c.errors:
 		if !ok {
 			return ErrClosed
 		}
 		return err
-
+	
 	case msg := <-c.rpc:
 		// Try to match one of the result types
 		for _, try := range res {
@@ -704,35 +704,35 @@ func (c *Connection) open(config Config) error {
 	if err := c.send(&protocolHeader{}); err != nil {
 		return err
 	}
-
+	
 	return c.openStart(config)
 }
 
 func (c *Connection) openStart(config Config) error {
 	start := &connectionStart{}
-
+	
 	if err := c.call(nil, start); err != nil {
 		return err
 	}
-
+	
 	c.Major = int(start.VersionMajor)
 	c.Minor = int(start.VersionMinor)
 	c.Properties = Table(start.ServerProperties)
 	c.Locales = strings.Split(start.Locales, " ")
-
+	
 	// eventually support challenge/response here by also responding to
 	// connectionSecure.
 	auth, ok := pickSASLMechanism(config.SASL, strings.Split(start.Mechanisms, " "))
 	if !ok {
 		return ErrSASL
 	}
-
+	
 	// Save this mechanism off as the one we chose
 	c.Config.SASL = []Authentication{auth}
-
+	
 	// Set the connection locale to client locale
 	c.Config.Locale = config.Locale
-
+	
 	return c.openTune(config, auth)
 }
 
@@ -743,12 +743,12 @@ func (c *Connection) openTune(config Config, auth Authentication) error {
 			"version": defaultVersion,
 		}
 	}
-
+	
 	config.Properties["capabilities"] = Table{
 		"connection.blocked":     true,
 		"consumer_cancel_notify": true,
 	}
-
+	
 	ok := &connectionStartOk{
 		ClientProperties: config.Properties,
 		Mechanism:        auth.Mechanism(),
@@ -756,14 +756,14 @@ func (c *Connection) openTune(config Config, auth Authentication) error {
 		Locale:           config.Locale,
 	}
 	tune := &connectionTune{}
-
+	
 	if err := c.call(ok, tune); err != nil {
 		// per spec, a connection can only be closed when it has been opened
 		// so at this point, we know it's an auth error, but the socket
 		// was closed instead.  Return a meaningful error.
 		return ErrCredentials
 	}
-
+	
 	// When the server and client both use default 0, then the max channel is
 	// only limited by uint16.
 	c.Config.ChannelMax = pick(config.ChannelMax, int(tune.ChannelMax))
@@ -771,21 +771,21 @@ func (c *Connection) openTune(config Config, auth Authentication) error {
 		c.Config.ChannelMax = defaultChannelMax
 	}
 	c.Config.ChannelMax = min(c.Config.ChannelMax, maxChannelMax)
-
+	
 	// Frame size includes headers and end byte (len(payload)+8), even if
 	// this is less than FrameMinSize, use what the server sends because the
 	// alternative is to stop the handshake here.
 	c.Config.FrameSize = pick(config.FrameSize, int(tune.FrameMax))
-
+	
 	// Save this off for resetDeadline()
 	c.Config.Heartbeat = time.Second * time.Duration(pick(
 		int(config.Heartbeat/time.Second),
 		int(tune.Heartbeat)))
-
+	
 	// "The client should start sending heartbeats after receiving a
 	// Connection.Tune method"
 	go c.heartbeater(c.Config.Heartbeat, c.NotifyClose(make(chan *Error, 1)))
-
+	
 	if err := c.send(&methodFrame{
 		ChannelId: 0,
 		Method: &connectionTuneOk{
@@ -796,21 +796,21 @@ func (c *Connection) openTune(config Config, auth Authentication) error {
 	}); err != nil {
 		return err
 	}
-
+	
 	return c.openVhost(config)
 }
 
 func (c *Connection) openVhost(config Config) error {
 	req := &connectionOpen{VirtualHost: config.Vhost}
 	res := &connectionOpenOk{}
-
+	
 	if err := c.call(req, res); err != nil {
 		// Cannot be closed yet, but we know it's a vhost problem
 		return ErrVhost
 	}
-
+	
 	c.Config.Vhost = config.Vhost
-
+	
 	return c.openComplete()
 }
 
@@ -825,7 +825,7 @@ func (c *Connection) openComplete() error {
 	}); ok {
 		_ = deadliner.SetDeadline(time.Time{})
 	}
-
+	
 	c.allocator = newAllocator(1, c.Config.ChannelMax)
 	return nil
 }

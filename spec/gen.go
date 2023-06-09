@@ -1,8 +1,9 @@
 // Copyright (c) 2012, Sean Treadway, SoundCloud Ltd.
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
-// Source code and contact info at http://github.com/streadway/amqp
+// Source code and contact info at http://github.com/gozelle/amqp
 
+//go:build ignore
 // +build ignore
 
 package main
@@ -116,7 +117,7 @@ type Amqp struct {
 	Minor   int    `xml:"minor,attr"`
 	Port    int    `xml:"port,attr"`
 	Comment string `xml:"comment,attr"`
-
+	
 	Constants []Constant `xml:"constant"`
 	Domains   []Domain   `xml:"domain"`
 	Classes   []Class    `xml:"class"`
@@ -140,12 +141,12 @@ var (
 		"private": private,
 		"clean":   clean,
 	}
-
+	
 	packageTemplate = template.Must(template.New("package").Funcs(helpers).Parse(`
 	// Copyright (c) 2012, Sean Treadway, SoundCloud Ltd.
 	// Use of this source code is governed by a BSD-style
 	// license that can be found in the LICENSE file.
-	// Source code and contact info at http://github.com/streadway/amqp
+	// Source code and contact info at http://github.com/gozelle/amqp
 
   /* GENERATED FILE - DO NOT EDIT */
   /* Rebuild from the spec/gen.go tool */
@@ -382,7 +383,7 @@ func (renderer *renderer) Fieldsets(fields []Field) (f []fieldset, err error) {
 			if err != nil {
 				return
 			}
-
+			
 			cur.NativeType, err = renderer.NativeType(cur.AmqpType)
 			if err != nil {
 				return
@@ -390,7 +391,7 @@ func (renderer *renderer) Fieldsets(fields []Field) (f []fieldset, err error) {
 			cur.Fields = append(cur.Fields, field)
 			f = append(f, cur)
 		}
-
+		
 		i, j := 0, 1
 		for j < len(f) {
 			if f[i].AmqpType == f[j].AmqpType {
@@ -403,7 +404,7 @@ func (renderer *renderer) Fieldsets(fields []Field) (f []fieldset, err error) {
 		}
 		return f[:i+1], nil
 	}
-
+	
 	return
 }
 
@@ -439,17 +440,17 @@ func (renderer *renderer) Domain(field Field) (domain Domain, err error) {
 
 func (renderer *renderer) FieldName(field Field) (t string) {
 	t = public(field.Name)
-
+	
 	if field.Reserved {
 		t = strings.ToLower(t)
 	}
-
+	
 	return
 }
 
 func (renderer *renderer) FieldType(field Field) (t string, err error) {
 	t = field.Type
-
+	
 	if t == "" {
 		var domain Domain
 		domain, err = renderer.Domain(field)
@@ -458,7 +459,7 @@ func (renderer *renderer) FieldType(field Field) (t string, err error) {
 		}
 		t = domain.Type
 	}
-
+	
 	return
 }
 
@@ -471,15 +472,15 @@ func (renderer *renderer) NativeType(amqpType string) (t string, err error) {
 
 func (renderer *renderer) Tag(d Domain) string {
 	label := "`"
-
+	
 	label += `domain:"` + d.Name + `"`
-
+	
 	if len(d.Type) > 0 {
 		label += `,type:"` + d.Type + `"`
 	}
-
+	
 	label += "`"
-
+	
 	return label
 }
 
@@ -501,7 +502,7 @@ func public(parts ...string) string {
 
 func export(delim *regexp.Regexp, parts ...string) (res string) {
 	for _, in := range parts {
-
+		
 		res += delim.ReplaceAllStringFunc(in, func(match string) string {
 			switch len(match) {
 			case 1:
@@ -512,24 +513,24 @@ func export(delim *regexp.Regexp, parts ...string) (res string) {
 			panic("unreachable")
 		})
 	}
-
+	
 	return
 }
 
 func main() {
 	var r renderer
-
+	
 	spec, err := ioutil.ReadAll(os.Stdin)
 	if err != nil {
 		log.Fatalln("Please pass spec on stdin", err)
 	}
-
+	
 	err = xml.Unmarshal(spec, &r.Root)
-
+	
 	if err != nil {
 		log.Fatalln("Could not parse XML:", err)
 	}
-
+	
 	if err = packageTemplate.Execute(os.Stdout, &r); err != nil {
 		log.Fatalln("Generate error: ", err)
 	}

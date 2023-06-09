@@ -1,7 +1,7 @@
 // Copyright (c) 2012, Sean Treadway, SoundCloud Ltd.
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
-// Source code and contact info at http://github.com/streadway/amqp
+// Source code and contact info at http://github.com/gozelle/amqp
 
 package amqp
 
@@ -27,9 +27,9 @@ type Acknowledger interface {
 // Channel.Get.
 type Delivery struct {
 	Acknowledger Acknowledger // the channel from which this delivery arrived
-
+	
 	Headers Table // Application or header exchange table
-
+	
 	// Properties
 	ContentType     string    // MIME content type
 	ContentEncoding string    // MIME content encoding
@@ -43,27 +43,27 @@ type Delivery struct {
 	Type            string    // application use - message type name
 	UserId          string    // application use - creating user - should be authenticated user
 	AppId           string    // application use - creating application id
-
+	
 	// Valid only with Channel.Consume
 	ConsumerTag string
-
+	
 	// Valid only with Channel.Get
 	MessageCount uint32
-
+	
 	DeliveryTag uint64
 	Redelivered bool
 	Exchange    string // basic.publish exchange
 	RoutingKey  string // basic.publish routing key
-
+	
 	Body []byte
 }
 
 func newDelivery(channel *Channel, msg messageWithContent) *Delivery {
 	props, body := msg.getContent()
-
+	
 	delivery := Delivery{
 		Acknowledger: channel,
-
+		
 		Headers:         props.Headers,
 		ContentType:     props.ContentType,
 		ContentEncoding: props.ContentEncoding,
@@ -77,10 +77,10 @@ func newDelivery(channel *Channel, msg messageWithContent) *Delivery {
 		Type:            props.Type,
 		UserId:          props.UserId,
 		AppId:           props.AppId,
-
+		
 		Body: body,
 	}
-
+	
 	// Properties for the delivery types
 	switch m := msg.(type) {
 	case *basicDeliver:
@@ -89,7 +89,7 @@ func newDelivery(channel *Channel, msg messageWithContent) *Delivery {
 		delivery.Redelivered = m.Redelivered
 		delivery.Exchange = m.Exchange
 		delivery.RoutingKey = m.RoutingKey
-
+	
 	case *basicGetOk:
 		delivery.MessageCount = m.MessageCount
 		delivery.DeliveryTag = m.DeliveryTag
@@ -97,7 +97,7 @@ func newDelivery(channel *Channel, msg messageWithContent) *Delivery {
 		delivery.Exchange = m.Exchange
 		delivery.RoutingKey = m.RoutingKey
 	}
-
+	
 	return &delivery
 }
 

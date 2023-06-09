@@ -1,7 +1,7 @@
 // Copyright (c) 2012, Sean Treadway, SoundCloud Ltd.
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
-// Source code and contact info at http://github.com/streadway/amqp
+// Source code and contact info at http://github.com/gozelle/amqp
 
 /* GENERATED FILE - DO NOT EDIT */
 /* Rebuild from the spec/gen.go tool */
@@ -62,7 +62,7 @@ func isSoftExceptionCode(code int) bool {
 		return true
 	case 406:
 		return true
-
+		
 	}
 	return false
 }
@@ -84,48 +84,48 @@ func (msg *connectionStart) wait() bool {
 }
 
 func (msg *connectionStart) write(w io.Writer) (err error) {
-
+	
 	if err = binary.Write(w, binary.BigEndian, msg.VersionMajor); err != nil {
 		return
 	}
 	if err = binary.Write(w, binary.BigEndian, msg.VersionMinor); err != nil {
 		return
 	}
-
+	
 	if err = writeTable(w, msg.ServerProperties); err != nil {
 		return
 	}
-
+	
 	if err = writeLongstr(w, msg.Mechanisms); err != nil {
 		return
 	}
 	if err = writeLongstr(w, msg.Locales); err != nil {
 		return
 	}
-
+	
 	return
 }
 
 func (msg *connectionStart) read(r io.Reader) (err error) {
-
+	
 	if err = binary.Read(r, binary.BigEndian, &msg.VersionMajor); err != nil {
 		return
 	}
 	if err = binary.Read(r, binary.BigEndian, &msg.VersionMinor); err != nil {
 		return
 	}
-
+	
 	if msg.ServerProperties, err = readTable(r); err != nil {
 		return
 	}
-
+	
 	if msg.Mechanisms, err = readLongstr(r); err != nil {
 		return
 	}
 	if msg.Locales, err = readLongstr(r); err != nil {
 		return
 	}
-
+	
 	return
 }
 
@@ -145,44 +145,44 @@ func (msg *connectionStartOk) wait() bool {
 }
 
 func (msg *connectionStartOk) write(w io.Writer) (err error) {
-
+	
 	if err = writeTable(w, msg.ClientProperties); err != nil {
 		return
 	}
-
+	
 	if err = writeShortstr(w, msg.Mechanism); err != nil {
 		return
 	}
-
+	
 	if err = writeLongstr(w, msg.Response); err != nil {
 		return
 	}
-
+	
 	if err = writeShortstr(w, msg.Locale); err != nil {
 		return
 	}
-
+	
 	return
 }
 
 func (msg *connectionStartOk) read(r io.Reader) (err error) {
-
+	
 	if msg.ClientProperties, err = readTable(r); err != nil {
 		return
 	}
-
+	
 	if msg.Mechanism, err = readShortstr(r); err != nil {
 		return
 	}
-
+	
 	if msg.Response, err = readLongstr(r); err != nil {
 		return
 	}
-
+	
 	if msg.Locale, err = readShortstr(r); err != nil {
 		return
 	}
-
+	
 	return
 }
 
@@ -199,20 +199,20 @@ func (msg *connectionSecure) wait() bool {
 }
 
 func (msg *connectionSecure) write(w io.Writer) (err error) {
-
+	
 	if err = writeLongstr(w, msg.Challenge); err != nil {
 		return
 	}
-
+	
 	return
 }
 
 func (msg *connectionSecure) read(r io.Reader) (err error) {
-
+	
 	if msg.Challenge, err = readLongstr(r); err != nil {
 		return
 	}
-
+	
 	return
 }
 
@@ -229,20 +229,20 @@ func (msg *connectionSecureOk) wait() bool {
 }
 
 func (msg *connectionSecureOk) write(w io.Writer) (err error) {
-
+	
 	if err = writeLongstr(w, msg.Response); err != nil {
 		return
 	}
-
+	
 	return
 }
 
 func (msg *connectionSecureOk) read(r io.Reader) (err error) {
-
+	
 	if msg.Response, err = readLongstr(r); err != nil {
 		return
 	}
-
+	
 	return
 }
 
@@ -261,36 +261,36 @@ func (msg *connectionTune) wait() bool {
 }
 
 func (msg *connectionTune) write(w io.Writer) (err error) {
-
+	
 	if err = binary.Write(w, binary.BigEndian, msg.ChannelMax); err != nil {
 		return
 	}
-
+	
 	if err = binary.Write(w, binary.BigEndian, msg.FrameMax); err != nil {
 		return
 	}
-
+	
 	if err = binary.Write(w, binary.BigEndian, msg.Heartbeat); err != nil {
 		return
 	}
-
+	
 	return
 }
 
 func (msg *connectionTune) read(r io.Reader) (err error) {
-
+	
 	if err = binary.Read(r, binary.BigEndian, &msg.ChannelMax); err != nil {
 		return
 	}
-
+	
 	if err = binary.Read(r, binary.BigEndian, &msg.FrameMax); err != nil {
 		return
 	}
-
+	
 	if err = binary.Read(r, binary.BigEndian, &msg.Heartbeat); err != nil {
 		return
 	}
-
+	
 	return
 }
 
@@ -309,36 +309,36 @@ func (msg *connectionTuneOk) wait() bool {
 }
 
 func (msg *connectionTuneOk) write(w io.Writer) (err error) {
-
+	
 	if err = binary.Write(w, binary.BigEndian, msg.ChannelMax); err != nil {
 		return
 	}
-
+	
 	if err = binary.Write(w, binary.BigEndian, msg.FrameMax); err != nil {
 		return
 	}
-
+	
 	if err = binary.Write(w, binary.BigEndian, msg.Heartbeat); err != nil {
 		return
 	}
-
+	
 	return
 }
 
 func (msg *connectionTuneOk) read(r io.Reader) (err error) {
-
+	
 	if err = binary.Read(r, binary.BigEndian, &msg.ChannelMax); err != nil {
 		return
 	}
-
+	
 	if err = binary.Read(r, binary.BigEndian, &msg.FrameMax); err != nil {
 		return
 	}
-
+	
 	if err = binary.Read(r, binary.BigEndian, &msg.Heartbeat); err != nil {
 		return
 	}
-
+	
 	return
 }
 
@@ -358,40 +358,40 @@ func (msg *connectionOpen) wait() bool {
 
 func (msg *connectionOpen) write(w io.Writer) (err error) {
 	var bits byte
-
+	
 	if err = writeShortstr(w, msg.VirtualHost); err != nil {
 		return
 	}
 	if err = writeShortstr(w, msg.reserved1); err != nil {
 		return
 	}
-
+	
 	if msg.reserved2 {
 		bits |= 1 << 0
 	}
-
+	
 	if err = binary.Write(w, binary.BigEndian, bits); err != nil {
 		return
 	}
-
+	
 	return
 }
 
 func (msg *connectionOpen) read(r io.Reader) (err error) {
 	var bits byte
-
+	
 	if msg.VirtualHost, err = readShortstr(r); err != nil {
 		return
 	}
 	if msg.reserved1, err = readShortstr(r); err != nil {
 		return
 	}
-
+	
 	if err = binary.Read(r, binary.BigEndian, &bits); err != nil {
 		return
 	}
 	msg.reserved2 = (bits&(1<<0) > 0)
-
+	
 	return
 }
 
@@ -408,20 +408,20 @@ func (msg *connectionOpenOk) wait() bool {
 }
 
 func (msg *connectionOpenOk) write(w io.Writer) (err error) {
-
+	
 	if err = writeShortstr(w, msg.reserved1); err != nil {
 		return
 	}
-
+	
 	return
 }
 
 func (msg *connectionOpenOk) read(r io.Reader) (err error) {
-
+	
 	if msg.reserved1, err = readShortstr(r); err != nil {
 		return
 	}
-
+	
 	return
 }
 
@@ -441,42 +441,42 @@ func (msg *connectionClose) wait() bool {
 }
 
 func (msg *connectionClose) write(w io.Writer) (err error) {
-
+	
 	if err = binary.Write(w, binary.BigEndian, msg.ReplyCode); err != nil {
 		return
 	}
-
+	
 	if err = writeShortstr(w, msg.ReplyText); err != nil {
 		return
 	}
-
+	
 	if err = binary.Write(w, binary.BigEndian, msg.ClassId); err != nil {
 		return
 	}
 	if err = binary.Write(w, binary.BigEndian, msg.MethodId); err != nil {
 		return
 	}
-
+	
 	return
 }
 
 func (msg *connectionClose) read(r io.Reader) (err error) {
-
+	
 	if err = binary.Read(r, binary.BigEndian, &msg.ReplyCode); err != nil {
 		return
 	}
-
+	
 	if msg.ReplyText, err = readShortstr(r); err != nil {
 		return
 	}
-
+	
 	if err = binary.Read(r, binary.BigEndian, &msg.ClassId); err != nil {
 		return
 	}
 	if err = binary.Read(r, binary.BigEndian, &msg.MethodId); err != nil {
 		return
 	}
-
+	
 	return
 }
 
@@ -492,12 +492,12 @@ func (msg *connectionCloseOk) wait() bool {
 }
 
 func (msg *connectionCloseOk) write(w io.Writer) (err error) {
-
+	
 	return
 }
 
 func (msg *connectionCloseOk) read(r io.Reader) (err error) {
-
+	
 	return
 }
 
@@ -514,20 +514,20 @@ func (msg *connectionBlocked) wait() bool {
 }
 
 func (msg *connectionBlocked) write(w io.Writer) (err error) {
-
+	
 	if err = writeShortstr(w, msg.Reason); err != nil {
 		return
 	}
-
+	
 	return
 }
 
 func (msg *connectionBlocked) read(r io.Reader) (err error) {
-
+	
 	if msg.Reason, err = readShortstr(r); err != nil {
 		return
 	}
-
+	
 	return
 }
 
@@ -543,12 +543,12 @@ func (msg *connectionUnblocked) wait() bool {
 }
 
 func (msg *connectionUnblocked) write(w io.Writer) (err error) {
-
+	
 	return
 }
 
 func (msg *connectionUnblocked) read(r io.Reader) (err error) {
-
+	
 	return
 }
 
@@ -565,20 +565,20 @@ func (msg *channelOpen) wait() bool {
 }
 
 func (msg *channelOpen) write(w io.Writer) (err error) {
-
+	
 	if err = writeShortstr(w, msg.reserved1); err != nil {
 		return
 	}
-
+	
 	return
 }
 
 func (msg *channelOpen) read(r io.Reader) (err error) {
-
+	
 	if msg.reserved1, err = readShortstr(r); err != nil {
 		return
 	}
-
+	
 	return
 }
 
@@ -595,20 +595,20 @@ func (msg *channelOpenOk) wait() bool {
 }
 
 func (msg *channelOpenOk) write(w io.Writer) (err error) {
-
+	
 	if err = writeLongstr(w, msg.reserved1); err != nil {
 		return
 	}
-
+	
 	return
 }
 
 func (msg *channelOpenOk) read(r io.Reader) (err error) {
-
+	
 	if msg.reserved1, err = readLongstr(r); err != nil {
 		return
 	}
-
+	
 	return
 }
 
@@ -626,26 +626,26 @@ func (msg *channelFlow) wait() bool {
 
 func (msg *channelFlow) write(w io.Writer) (err error) {
 	var bits byte
-
+	
 	if msg.Active {
 		bits |= 1 << 0
 	}
-
+	
 	if err = binary.Write(w, binary.BigEndian, bits); err != nil {
 		return
 	}
-
+	
 	return
 }
 
 func (msg *channelFlow) read(r io.Reader) (err error) {
 	var bits byte
-
+	
 	if err = binary.Read(r, binary.BigEndian, &bits); err != nil {
 		return
 	}
 	msg.Active = (bits&(1<<0) > 0)
-
+	
 	return
 }
 
@@ -663,26 +663,26 @@ func (msg *channelFlowOk) wait() bool {
 
 func (msg *channelFlowOk) write(w io.Writer) (err error) {
 	var bits byte
-
+	
 	if msg.Active {
 		bits |= 1 << 0
 	}
-
+	
 	if err = binary.Write(w, binary.BigEndian, bits); err != nil {
 		return
 	}
-
+	
 	return
 }
 
 func (msg *channelFlowOk) read(r io.Reader) (err error) {
 	var bits byte
-
+	
 	if err = binary.Read(r, binary.BigEndian, &bits); err != nil {
 		return
 	}
 	msg.Active = (bits&(1<<0) > 0)
-
+	
 	return
 }
 
@@ -702,42 +702,42 @@ func (msg *channelClose) wait() bool {
 }
 
 func (msg *channelClose) write(w io.Writer) (err error) {
-
+	
 	if err = binary.Write(w, binary.BigEndian, msg.ReplyCode); err != nil {
 		return
 	}
-
+	
 	if err = writeShortstr(w, msg.ReplyText); err != nil {
 		return
 	}
-
+	
 	if err = binary.Write(w, binary.BigEndian, msg.ClassId); err != nil {
 		return
 	}
 	if err = binary.Write(w, binary.BigEndian, msg.MethodId); err != nil {
 		return
 	}
-
+	
 	return
 }
 
 func (msg *channelClose) read(r io.Reader) (err error) {
-
+	
 	if err = binary.Read(r, binary.BigEndian, &msg.ReplyCode); err != nil {
 		return
 	}
-
+	
 	if msg.ReplyText, err = readShortstr(r); err != nil {
 		return
 	}
-
+	
 	if err = binary.Read(r, binary.BigEndian, &msg.ClassId); err != nil {
 		return
 	}
 	if err = binary.Read(r, binary.BigEndian, &msg.MethodId); err != nil {
 		return
 	}
-
+	
 	return
 }
 
@@ -753,12 +753,12 @@ func (msg *channelCloseOk) wait() bool {
 }
 
 func (msg *channelCloseOk) write(w io.Writer) (err error) {
-
+	
 	return
 }
 
 func (msg *channelCloseOk) read(r io.Reader) (err error) {
-
+	
 	return
 }
 
@@ -784,63 +784,63 @@ func (msg *exchangeDeclare) wait() bool {
 
 func (msg *exchangeDeclare) write(w io.Writer) (err error) {
 	var bits byte
-
+	
 	if err = binary.Write(w, binary.BigEndian, msg.reserved1); err != nil {
 		return
 	}
-
+	
 	if err = writeShortstr(w, msg.Exchange); err != nil {
 		return
 	}
 	if err = writeShortstr(w, msg.Type); err != nil {
 		return
 	}
-
+	
 	if msg.Passive {
 		bits |= 1 << 0
 	}
-
+	
 	if msg.Durable {
 		bits |= 1 << 1
 	}
-
+	
 	if msg.AutoDelete {
 		bits |= 1 << 2
 	}
-
+	
 	if msg.Internal {
 		bits |= 1 << 3
 	}
-
+	
 	if msg.NoWait {
 		bits |= 1 << 4
 	}
-
+	
 	if err = binary.Write(w, binary.BigEndian, bits); err != nil {
 		return
 	}
-
+	
 	if err = writeTable(w, msg.Arguments); err != nil {
 		return
 	}
-
+	
 	return
 }
 
 func (msg *exchangeDeclare) read(r io.Reader) (err error) {
 	var bits byte
-
+	
 	if err = binary.Read(r, binary.BigEndian, &msg.reserved1); err != nil {
 		return
 	}
-
+	
 	if msg.Exchange, err = readShortstr(r); err != nil {
 		return
 	}
 	if msg.Type, err = readShortstr(r); err != nil {
 		return
 	}
-
+	
 	if err = binary.Read(r, binary.BigEndian, &bits); err != nil {
 		return
 	}
@@ -849,11 +849,11 @@ func (msg *exchangeDeclare) read(r io.Reader) (err error) {
 	msg.AutoDelete = (bits&(1<<2) > 0)
 	msg.Internal = (bits&(1<<3) > 0)
 	msg.NoWait = (bits&(1<<4) > 0)
-
+	
 	if msg.Arguments, err = readTable(r); err != nil {
 		return
 	}
-
+	
 	return
 }
 
@@ -869,12 +869,12 @@ func (msg *exchangeDeclareOk) wait() bool {
 }
 
 func (msg *exchangeDeclareOk) write(w io.Writer) (err error) {
-
+	
 	return
 }
 
 func (msg *exchangeDeclareOk) read(r io.Reader) (err error) {
-
+	
 	return
 }
 
@@ -895,47 +895,47 @@ func (msg *exchangeDelete) wait() bool {
 
 func (msg *exchangeDelete) write(w io.Writer) (err error) {
 	var bits byte
-
+	
 	if err = binary.Write(w, binary.BigEndian, msg.reserved1); err != nil {
 		return
 	}
-
+	
 	if err = writeShortstr(w, msg.Exchange); err != nil {
 		return
 	}
-
+	
 	if msg.IfUnused {
 		bits |= 1 << 0
 	}
-
+	
 	if msg.NoWait {
 		bits |= 1 << 1
 	}
-
+	
 	if err = binary.Write(w, binary.BigEndian, bits); err != nil {
 		return
 	}
-
+	
 	return
 }
 
 func (msg *exchangeDelete) read(r io.Reader) (err error) {
 	var bits byte
-
+	
 	if err = binary.Read(r, binary.BigEndian, &msg.reserved1); err != nil {
 		return
 	}
-
+	
 	if msg.Exchange, err = readShortstr(r); err != nil {
 		return
 	}
-
+	
 	if err = binary.Read(r, binary.BigEndian, &bits); err != nil {
 		return
 	}
 	msg.IfUnused = (bits&(1<<0) > 0)
 	msg.NoWait = (bits&(1<<1) > 0)
-
+	
 	return
 }
 
@@ -951,12 +951,12 @@ func (msg *exchangeDeleteOk) wait() bool {
 }
 
 func (msg *exchangeDeleteOk) write(w io.Writer) (err error) {
-
+	
 	return
 }
 
 func (msg *exchangeDeleteOk) read(r io.Reader) (err error) {
-
+	
 	return
 }
 
@@ -979,11 +979,11 @@ func (msg *exchangeBind) wait() bool {
 
 func (msg *exchangeBind) write(w io.Writer) (err error) {
 	var bits byte
-
+	
 	if err = binary.Write(w, binary.BigEndian, msg.reserved1); err != nil {
 		return
 	}
-
+	
 	if err = writeShortstr(w, msg.Destination); err != nil {
 		return
 	}
@@ -993,29 +993,29 @@ func (msg *exchangeBind) write(w io.Writer) (err error) {
 	if err = writeShortstr(w, msg.RoutingKey); err != nil {
 		return
 	}
-
+	
 	if msg.NoWait {
 		bits |= 1 << 0
 	}
-
+	
 	if err = binary.Write(w, binary.BigEndian, bits); err != nil {
 		return
 	}
-
+	
 	if err = writeTable(w, msg.Arguments); err != nil {
 		return
 	}
-
+	
 	return
 }
 
 func (msg *exchangeBind) read(r io.Reader) (err error) {
 	var bits byte
-
+	
 	if err = binary.Read(r, binary.BigEndian, &msg.reserved1); err != nil {
 		return
 	}
-
+	
 	if msg.Destination, err = readShortstr(r); err != nil {
 		return
 	}
@@ -1025,16 +1025,16 @@ func (msg *exchangeBind) read(r io.Reader) (err error) {
 	if msg.RoutingKey, err = readShortstr(r); err != nil {
 		return
 	}
-
+	
 	if err = binary.Read(r, binary.BigEndian, &bits); err != nil {
 		return
 	}
 	msg.NoWait = (bits&(1<<0) > 0)
-
+	
 	if msg.Arguments, err = readTable(r); err != nil {
 		return
 	}
-
+	
 	return
 }
 
@@ -1050,12 +1050,12 @@ func (msg *exchangeBindOk) wait() bool {
 }
 
 func (msg *exchangeBindOk) write(w io.Writer) (err error) {
-
+	
 	return
 }
 
 func (msg *exchangeBindOk) read(r io.Reader) (err error) {
-
+	
 	return
 }
 
@@ -1078,11 +1078,11 @@ func (msg *exchangeUnbind) wait() bool {
 
 func (msg *exchangeUnbind) write(w io.Writer) (err error) {
 	var bits byte
-
+	
 	if err = binary.Write(w, binary.BigEndian, msg.reserved1); err != nil {
 		return
 	}
-
+	
 	if err = writeShortstr(w, msg.Destination); err != nil {
 		return
 	}
@@ -1092,29 +1092,29 @@ func (msg *exchangeUnbind) write(w io.Writer) (err error) {
 	if err = writeShortstr(w, msg.RoutingKey); err != nil {
 		return
 	}
-
+	
 	if msg.NoWait {
 		bits |= 1 << 0
 	}
-
+	
 	if err = binary.Write(w, binary.BigEndian, bits); err != nil {
 		return
 	}
-
+	
 	if err = writeTable(w, msg.Arguments); err != nil {
 		return
 	}
-
+	
 	return
 }
 
 func (msg *exchangeUnbind) read(r io.Reader) (err error) {
 	var bits byte
-
+	
 	if err = binary.Read(r, binary.BigEndian, &msg.reserved1); err != nil {
 		return
 	}
-
+	
 	if msg.Destination, err = readShortstr(r); err != nil {
 		return
 	}
@@ -1124,16 +1124,16 @@ func (msg *exchangeUnbind) read(r io.Reader) (err error) {
 	if msg.RoutingKey, err = readShortstr(r); err != nil {
 		return
 	}
-
+	
 	if err = binary.Read(r, binary.BigEndian, &bits); err != nil {
 		return
 	}
 	msg.NoWait = (bits&(1<<0) > 0)
-
+	
 	if msg.Arguments, err = readTable(r); err != nil {
 		return
 	}
-
+	
 	return
 }
 
@@ -1149,12 +1149,12 @@ func (msg *exchangeUnbindOk) wait() bool {
 }
 
 func (msg *exchangeUnbindOk) write(w io.Writer) (err error) {
-
+	
 	return
 }
 
 func (msg *exchangeUnbindOk) read(r io.Reader) (err error) {
-
+	
 	return
 }
 
@@ -1179,57 +1179,57 @@ func (msg *queueDeclare) wait() bool {
 
 func (msg *queueDeclare) write(w io.Writer) (err error) {
 	var bits byte
-
+	
 	if err = binary.Write(w, binary.BigEndian, msg.reserved1); err != nil {
 		return
 	}
-
+	
 	if err = writeShortstr(w, msg.Queue); err != nil {
 		return
 	}
-
+	
 	if msg.Passive {
 		bits |= 1 << 0
 	}
-
+	
 	if msg.Durable {
 		bits |= 1 << 1
 	}
-
+	
 	if msg.Exclusive {
 		bits |= 1 << 2
 	}
-
+	
 	if msg.AutoDelete {
 		bits |= 1 << 3
 	}
-
+	
 	if msg.NoWait {
 		bits |= 1 << 4
 	}
-
+	
 	if err = binary.Write(w, binary.BigEndian, bits); err != nil {
 		return
 	}
-
+	
 	if err = writeTable(w, msg.Arguments); err != nil {
 		return
 	}
-
+	
 	return
 }
 
 func (msg *queueDeclare) read(r io.Reader) (err error) {
 	var bits byte
-
+	
 	if err = binary.Read(r, binary.BigEndian, &msg.reserved1); err != nil {
 		return
 	}
-
+	
 	if msg.Queue, err = readShortstr(r); err != nil {
 		return
 	}
-
+	
 	if err = binary.Read(r, binary.BigEndian, &bits); err != nil {
 		return
 	}
@@ -1238,11 +1238,11 @@ func (msg *queueDeclare) read(r io.Reader) (err error) {
 	msg.Exclusive = (bits&(1<<2) > 0)
 	msg.AutoDelete = (bits&(1<<3) > 0)
 	msg.NoWait = (bits&(1<<4) > 0)
-
+	
 	if msg.Arguments, err = readTable(r); err != nil {
 		return
 	}
-
+	
 	return
 }
 
@@ -1261,34 +1261,34 @@ func (msg *queueDeclareOk) wait() bool {
 }
 
 func (msg *queueDeclareOk) write(w io.Writer) (err error) {
-
+	
 	if err = writeShortstr(w, msg.Queue); err != nil {
 		return
 	}
-
+	
 	if err = binary.Write(w, binary.BigEndian, msg.MessageCount); err != nil {
 		return
 	}
 	if err = binary.Write(w, binary.BigEndian, msg.ConsumerCount); err != nil {
 		return
 	}
-
+	
 	return
 }
 
 func (msg *queueDeclareOk) read(r io.Reader) (err error) {
-
+	
 	if msg.Queue, err = readShortstr(r); err != nil {
 		return
 	}
-
+	
 	if err = binary.Read(r, binary.BigEndian, &msg.MessageCount); err != nil {
 		return
 	}
 	if err = binary.Read(r, binary.BigEndian, &msg.ConsumerCount); err != nil {
 		return
 	}
-
+	
 	return
 }
 
@@ -1311,11 +1311,11 @@ func (msg *queueBind) wait() bool {
 
 func (msg *queueBind) write(w io.Writer) (err error) {
 	var bits byte
-
+	
 	if err = binary.Write(w, binary.BigEndian, msg.reserved1); err != nil {
 		return
 	}
-
+	
 	if err = writeShortstr(w, msg.Queue); err != nil {
 		return
 	}
@@ -1325,29 +1325,29 @@ func (msg *queueBind) write(w io.Writer) (err error) {
 	if err = writeShortstr(w, msg.RoutingKey); err != nil {
 		return
 	}
-
+	
 	if msg.NoWait {
 		bits |= 1 << 0
 	}
-
+	
 	if err = binary.Write(w, binary.BigEndian, bits); err != nil {
 		return
 	}
-
+	
 	if err = writeTable(w, msg.Arguments); err != nil {
 		return
 	}
-
+	
 	return
 }
 
 func (msg *queueBind) read(r io.Reader) (err error) {
 	var bits byte
-
+	
 	if err = binary.Read(r, binary.BigEndian, &msg.reserved1); err != nil {
 		return
 	}
-
+	
 	if msg.Queue, err = readShortstr(r); err != nil {
 		return
 	}
@@ -1357,16 +1357,16 @@ func (msg *queueBind) read(r io.Reader) (err error) {
 	if msg.RoutingKey, err = readShortstr(r); err != nil {
 		return
 	}
-
+	
 	if err = binary.Read(r, binary.BigEndian, &bits); err != nil {
 		return
 	}
 	msg.NoWait = (bits&(1<<0) > 0)
-
+	
 	if msg.Arguments, err = readTable(r); err != nil {
 		return
 	}
-
+	
 	return
 }
 
@@ -1382,12 +1382,12 @@ func (msg *queueBindOk) wait() bool {
 }
 
 func (msg *queueBindOk) write(w io.Writer) (err error) {
-
+	
 	return
 }
 
 func (msg *queueBindOk) read(r io.Reader) (err error) {
-
+	
 	return
 }
 
@@ -1408,11 +1408,11 @@ func (msg *queueUnbind) wait() bool {
 }
 
 func (msg *queueUnbind) write(w io.Writer) (err error) {
-
+	
 	if err = binary.Write(w, binary.BigEndian, msg.reserved1); err != nil {
 		return
 	}
-
+	
 	if err = writeShortstr(w, msg.Queue); err != nil {
 		return
 	}
@@ -1422,20 +1422,20 @@ func (msg *queueUnbind) write(w io.Writer) (err error) {
 	if err = writeShortstr(w, msg.RoutingKey); err != nil {
 		return
 	}
-
+	
 	if err = writeTable(w, msg.Arguments); err != nil {
 		return
 	}
-
+	
 	return
 }
 
 func (msg *queueUnbind) read(r io.Reader) (err error) {
-
+	
 	if err = binary.Read(r, binary.BigEndian, &msg.reserved1); err != nil {
 		return
 	}
-
+	
 	if msg.Queue, err = readShortstr(r); err != nil {
 		return
 	}
@@ -1445,11 +1445,11 @@ func (msg *queueUnbind) read(r io.Reader) (err error) {
 	if msg.RoutingKey, err = readShortstr(r); err != nil {
 		return
 	}
-
+	
 	if msg.Arguments, err = readTable(r); err != nil {
 		return
 	}
-
+	
 	return
 }
 
@@ -1465,12 +1465,12 @@ func (msg *queueUnbindOk) wait() bool {
 }
 
 func (msg *queueUnbindOk) write(w io.Writer) (err error) {
-
+	
 	return
 }
 
 func (msg *queueUnbindOk) read(r io.Reader) (err error) {
-
+	
 	return
 }
 
@@ -1490,42 +1490,42 @@ func (msg *queuePurge) wait() bool {
 
 func (msg *queuePurge) write(w io.Writer) (err error) {
 	var bits byte
-
+	
 	if err = binary.Write(w, binary.BigEndian, msg.reserved1); err != nil {
 		return
 	}
-
+	
 	if err = writeShortstr(w, msg.Queue); err != nil {
 		return
 	}
-
+	
 	if msg.NoWait {
 		bits |= 1 << 0
 	}
-
+	
 	if err = binary.Write(w, binary.BigEndian, bits); err != nil {
 		return
 	}
-
+	
 	return
 }
 
 func (msg *queuePurge) read(r io.Reader) (err error) {
 	var bits byte
-
+	
 	if err = binary.Read(r, binary.BigEndian, &msg.reserved1); err != nil {
 		return
 	}
-
+	
 	if msg.Queue, err = readShortstr(r); err != nil {
 		return
 	}
-
+	
 	if err = binary.Read(r, binary.BigEndian, &bits); err != nil {
 		return
 	}
 	msg.NoWait = (bits&(1<<0) > 0)
-
+	
 	return
 }
 
@@ -1542,20 +1542,20 @@ func (msg *queuePurgeOk) wait() bool {
 }
 
 func (msg *queuePurgeOk) write(w io.Writer) (err error) {
-
+	
 	if err = binary.Write(w, binary.BigEndian, msg.MessageCount); err != nil {
 		return
 	}
-
+	
 	return
 }
 
 func (msg *queuePurgeOk) read(r io.Reader) (err error) {
-
+	
 	if err = binary.Read(r, binary.BigEndian, &msg.MessageCount); err != nil {
 		return
 	}
-
+	
 	return
 }
 
@@ -1577,52 +1577,52 @@ func (msg *queueDelete) wait() bool {
 
 func (msg *queueDelete) write(w io.Writer) (err error) {
 	var bits byte
-
+	
 	if err = binary.Write(w, binary.BigEndian, msg.reserved1); err != nil {
 		return
 	}
-
+	
 	if err = writeShortstr(w, msg.Queue); err != nil {
 		return
 	}
-
+	
 	if msg.IfUnused {
 		bits |= 1 << 0
 	}
-
+	
 	if msg.IfEmpty {
 		bits |= 1 << 1
 	}
-
+	
 	if msg.NoWait {
 		bits |= 1 << 2
 	}
-
+	
 	if err = binary.Write(w, binary.BigEndian, bits); err != nil {
 		return
 	}
-
+	
 	return
 }
 
 func (msg *queueDelete) read(r io.Reader) (err error) {
 	var bits byte
-
+	
 	if err = binary.Read(r, binary.BigEndian, &msg.reserved1); err != nil {
 		return
 	}
-
+	
 	if msg.Queue, err = readShortstr(r); err != nil {
 		return
 	}
-
+	
 	if err = binary.Read(r, binary.BigEndian, &bits); err != nil {
 		return
 	}
 	msg.IfUnused = (bits&(1<<0) > 0)
 	msg.IfEmpty = (bits&(1<<1) > 0)
 	msg.NoWait = (bits&(1<<2) > 0)
-
+	
 	return
 }
 
@@ -1639,20 +1639,20 @@ func (msg *queueDeleteOk) wait() bool {
 }
 
 func (msg *queueDeleteOk) write(w io.Writer) (err error) {
-
+	
 	if err = binary.Write(w, binary.BigEndian, msg.MessageCount); err != nil {
 		return
 	}
-
+	
 	return
 }
 
 func (msg *queueDeleteOk) read(r io.Reader) (err error) {
-
+	
 	if err = binary.Read(r, binary.BigEndian, &msg.MessageCount); err != nil {
 		return
 	}
-
+	
 	return
 }
 
@@ -1672,42 +1672,42 @@ func (msg *basicQos) wait() bool {
 
 func (msg *basicQos) write(w io.Writer) (err error) {
 	var bits byte
-
+	
 	if err = binary.Write(w, binary.BigEndian, msg.PrefetchSize); err != nil {
 		return
 	}
-
+	
 	if err = binary.Write(w, binary.BigEndian, msg.PrefetchCount); err != nil {
 		return
 	}
-
+	
 	if msg.Global {
 		bits |= 1 << 0
 	}
-
+	
 	if err = binary.Write(w, binary.BigEndian, bits); err != nil {
 		return
 	}
-
+	
 	return
 }
 
 func (msg *basicQos) read(r io.Reader) (err error) {
 	var bits byte
-
+	
 	if err = binary.Read(r, binary.BigEndian, &msg.PrefetchSize); err != nil {
 		return
 	}
-
+	
 	if err = binary.Read(r, binary.BigEndian, &msg.PrefetchCount); err != nil {
 		return
 	}
-
+	
 	if err = binary.Read(r, binary.BigEndian, &bits); err != nil {
 		return
 	}
 	msg.Global = (bits&(1<<0) > 0)
-
+	
 	return
 }
 
@@ -1723,12 +1723,12 @@ func (msg *basicQosOk) wait() bool {
 }
 
 func (msg *basicQosOk) write(w io.Writer) (err error) {
-
+	
 	return
 }
 
 func (msg *basicQosOk) read(r io.Reader) (err error) {
-
+	
 	return
 }
 
@@ -1753,59 +1753,59 @@ func (msg *basicConsume) wait() bool {
 
 func (msg *basicConsume) write(w io.Writer) (err error) {
 	var bits byte
-
+	
 	if err = binary.Write(w, binary.BigEndian, msg.reserved1); err != nil {
 		return
 	}
-
+	
 	if err = writeShortstr(w, msg.Queue); err != nil {
 		return
 	}
 	if err = writeShortstr(w, msg.ConsumerTag); err != nil {
 		return
 	}
-
+	
 	if msg.NoLocal {
 		bits |= 1 << 0
 	}
-
+	
 	if msg.NoAck {
 		bits |= 1 << 1
 	}
-
+	
 	if msg.Exclusive {
 		bits |= 1 << 2
 	}
-
+	
 	if msg.NoWait {
 		bits |= 1 << 3
 	}
-
+	
 	if err = binary.Write(w, binary.BigEndian, bits); err != nil {
 		return
 	}
-
+	
 	if err = writeTable(w, msg.Arguments); err != nil {
 		return
 	}
-
+	
 	return
 }
 
 func (msg *basicConsume) read(r io.Reader) (err error) {
 	var bits byte
-
+	
 	if err = binary.Read(r, binary.BigEndian, &msg.reserved1); err != nil {
 		return
 	}
-
+	
 	if msg.Queue, err = readShortstr(r); err != nil {
 		return
 	}
 	if msg.ConsumerTag, err = readShortstr(r); err != nil {
 		return
 	}
-
+	
 	if err = binary.Read(r, binary.BigEndian, &bits); err != nil {
 		return
 	}
@@ -1813,11 +1813,11 @@ func (msg *basicConsume) read(r io.Reader) (err error) {
 	msg.NoAck = (bits&(1<<1) > 0)
 	msg.Exclusive = (bits&(1<<2) > 0)
 	msg.NoWait = (bits&(1<<3) > 0)
-
+	
 	if msg.Arguments, err = readTable(r); err != nil {
 		return
 	}
-
+	
 	return
 }
 
@@ -1834,20 +1834,20 @@ func (msg *basicConsumeOk) wait() bool {
 }
 
 func (msg *basicConsumeOk) write(w io.Writer) (err error) {
-
+	
 	if err = writeShortstr(w, msg.ConsumerTag); err != nil {
 		return
 	}
-
+	
 	return
 }
 
 func (msg *basicConsumeOk) read(r io.Reader) (err error) {
-
+	
 	if msg.ConsumerTag, err = readShortstr(r); err != nil {
 		return
 	}
-
+	
 	return
 }
 
@@ -1866,34 +1866,34 @@ func (msg *basicCancel) wait() bool {
 
 func (msg *basicCancel) write(w io.Writer) (err error) {
 	var bits byte
-
+	
 	if err = writeShortstr(w, msg.ConsumerTag); err != nil {
 		return
 	}
-
+	
 	if msg.NoWait {
 		bits |= 1 << 0
 	}
-
+	
 	if err = binary.Write(w, binary.BigEndian, bits); err != nil {
 		return
 	}
-
+	
 	return
 }
 
 func (msg *basicCancel) read(r io.Reader) (err error) {
 	var bits byte
-
+	
 	if msg.ConsumerTag, err = readShortstr(r); err != nil {
 		return
 	}
-
+	
 	if err = binary.Read(r, binary.BigEndian, &bits); err != nil {
 		return
 	}
 	msg.NoWait = (bits&(1<<0) > 0)
-
+	
 	return
 }
 
@@ -1910,20 +1910,20 @@ func (msg *basicCancelOk) wait() bool {
 }
 
 func (msg *basicCancelOk) write(w io.Writer) (err error) {
-
+	
 	if err = writeShortstr(w, msg.ConsumerTag); err != nil {
 		return
 	}
-
+	
 	return
 }
 
 func (msg *basicCancelOk) read(r io.Reader) (err error) {
-
+	
 	if msg.ConsumerTag, err = readShortstr(r); err != nil {
 		return
 	}
-
+	
 	return
 }
 
@@ -1955,53 +1955,53 @@ func (msg *basicPublish) setContent(props properties, body []byte) {
 
 func (msg *basicPublish) write(w io.Writer) (err error) {
 	var bits byte
-
+	
 	if err = binary.Write(w, binary.BigEndian, msg.reserved1); err != nil {
 		return
 	}
-
+	
 	if err = writeShortstr(w, msg.Exchange); err != nil {
 		return
 	}
 	if err = writeShortstr(w, msg.RoutingKey); err != nil {
 		return
 	}
-
+	
 	if msg.Mandatory {
 		bits |= 1 << 0
 	}
-
+	
 	if msg.Immediate {
 		bits |= 1 << 1
 	}
-
+	
 	if err = binary.Write(w, binary.BigEndian, bits); err != nil {
 		return
 	}
-
+	
 	return
 }
 
 func (msg *basicPublish) read(r io.Reader) (err error) {
 	var bits byte
-
+	
 	if err = binary.Read(r, binary.BigEndian, &msg.reserved1); err != nil {
 		return
 	}
-
+	
 	if msg.Exchange, err = readShortstr(r); err != nil {
 		return
 	}
 	if msg.RoutingKey, err = readShortstr(r); err != nil {
 		return
 	}
-
+	
 	if err = binary.Read(r, binary.BigEndian, &bits); err != nil {
 		return
 	}
 	msg.Mandatory = (bits&(1<<0) > 0)
 	msg.Immediate = (bits&(1<<1) > 0)
-
+	
 	return
 }
 
@@ -2031,11 +2031,11 @@ func (msg *basicReturn) setContent(props properties, body []byte) {
 }
 
 func (msg *basicReturn) write(w io.Writer) (err error) {
-
+	
 	if err = binary.Write(w, binary.BigEndian, msg.ReplyCode); err != nil {
 		return
 	}
-
+	
 	if err = writeShortstr(w, msg.ReplyText); err != nil {
 		return
 	}
@@ -2045,16 +2045,16 @@ func (msg *basicReturn) write(w io.Writer) (err error) {
 	if err = writeShortstr(w, msg.RoutingKey); err != nil {
 		return
 	}
-
+	
 	return
 }
 
 func (msg *basicReturn) read(r io.Reader) (err error) {
-
+	
 	if err = binary.Read(r, binary.BigEndian, &msg.ReplyCode); err != nil {
 		return
 	}
-
+	
 	if msg.ReplyText, err = readShortstr(r); err != nil {
 		return
 	}
@@ -2064,7 +2064,7 @@ func (msg *basicReturn) read(r io.Reader) (err error) {
 	if msg.RoutingKey, err = readShortstr(r); err != nil {
 		return
 	}
-
+	
 	return
 }
 
@@ -2096,56 +2096,56 @@ func (msg *basicDeliver) setContent(props properties, body []byte) {
 
 func (msg *basicDeliver) write(w io.Writer) (err error) {
 	var bits byte
-
+	
 	if err = writeShortstr(w, msg.ConsumerTag); err != nil {
 		return
 	}
-
+	
 	if err = binary.Write(w, binary.BigEndian, msg.DeliveryTag); err != nil {
 		return
 	}
-
+	
 	if msg.Redelivered {
 		bits |= 1 << 0
 	}
-
+	
 	if err = binary.Write(w, binary.BigEndian, bits); err != nil {
 		return
 	}
-
+	
 	if err = writeShortstr(w, msg.Exchange); err != nil {
 		return
 	}
 	if err = writeShortstr(w, msg.RoutingKey); err != nil {
 		return
 	}
-
+	
 	return
 }
 
 func (msg *basicDeliver) read(r io.Reader) (err error) {
 	var bits byte
-
+	
 	if msg.ConsumerTag, err = readShortstr(r); err != nil {
 		return
 	}
-
+	
 	if err = binary.Read(r, binary.BigEndian, &msg.DeliveryTag); err != nil {
 		return
 	}
-
+	
 	if err = binary.Read(r, binary.BigEndian, &bits); err != nil {
 		return
 	}
 	msg.Redelivered = (bits&(1<<0) > 0)
-
+	
 	if msg.Exchange, err = readShortstr(r); err != nil {
 		return
 	}
 	if msg.RoutingKey, err = readShortstr(r); err != nil {
 		return
 	}
-
+	
 	return
 }
 
@@ -2165,42 +2165,42 @@ func (msg *basicGet) wait() bool {
 
 func (msg *basicGet) write(w io.Writer) (err error) {
 	var bits byte
-
+	
 	if err = binary.Write(w, binary.BigEndian, msg.reserved1); err != nil {
 		return
 	}
-
+	
 	if err = writeShortstr(w, msg.Queue); err != nil {
 		return
 	}
-
+	
 	if msg.NoAck {
 		bits |= 1 << 0
 	}
-
+	
 	if err = binary.Write(w, binary.BigEndian, bits); err != nil {
 		return
 	}
-
+	
 	return
 }
 
 func (msg *basicGet) read(r io.Reader) (err error) {
 	var bits byte
-
+	
 	if err = binary.Read(r, binary.BigEndian, &msg.reserved1); err != nil {
 		return
 	}
-
+	
 	if msg.Queue, err = readShortstr(r); err != nil {
 		return
 	}
-
+	
 	if err = binary.Read(r, binary.BigEndian, &bits); err != nil {
 		return
 	}
 	msg.NoAck = (bits&(1<<0) > 0)
-
+	
 	return
 }
 
@@ -2232,56 +2232,56 @@ func (msg *basicGetOk) setContent(props properties, body []byte) {
 
 func (msg *basicGetOk) write(w io.Writer) (err error) {
 	var bits byte
-
+	
 	if err = binary.Write(w, binary.BigEndian, msg.DeliveryTag); err != nil {
 		return
 	}
-
+	
 	if msg.Redelivered {
 		bits |= 1 << 0
 	}
-
+	
 	if err = binary.Write(w, binary.BigEndian, bits); err != nil {
 		return
 	}
-
+	
 	if err = writeShortstr(w, msg.Exchange); err != nil {
 		return
 	}
 	if err = writeShortstr(w, msg.RoutingKey); err != nil {
 		return
 	}
-
+	
 	if err = binary.Write(w, binary.BigEndian, msg.MessageCount); err != nil {
 		return
 	}
-
+	
 	return
 }
 
 func (msg *basicGetOk) read(r io.Reader) (err error) {
 	var bits byte
-
+	
 	if err = binary.Read(r, binary.BigEndian, &msg.DeliveryTag); err != nil {
 		return
 	}
-
+	
 	if err = binary.Read(r, binary.BigEndian, &bits); err != nil {
 		return
 	}
 	msg.Redelivered = (bits&(1<<0) > 0)
-
+	
 	if msg.Exchange, err = readShortstr(r); err != nil {
 		return
 	}
 	if msg.RoutingKey, err = readShortstr(r); err != nil {
 		return
 	}
-
+	
 	if err = binary.Read(r, binary.BigEndian, &msg.MessageCount); err != nil {
 		return
 	}
-
+	
 	return
 }
 
@@ -2298,20 +2298,20 @@ func (msg *basicGetEmpty) wait() bool {
 }
 
 func (msg *basicGetEmpty) write(w io.Writer) (err error) {
-
+	
 	if err = writeShortstr(w, msg.reserved1); err != nil {
 		return
 	}
-
+	
 	return
 }
 
 func (msg *basicGetEmpty) read(r io.Reader) (err error) {
-
+	
 	if msg.reserved1, err = readShortstr(r); err != nil {
 		return
 	}
-
+	
 	return
 }
 
@@ -2330,34 +2330,34 @@ func (msg *basicAck) wait() bool {
 
 func (msg *basicAck) write(w io.Writer) (err error) {
 	var bits byte
-
+	
 	if err = binary.Write(w, binary.BigEndian, msg.DeliveryTag); err != nil {
 		return
 	}
-
+	
 	if msg.Multiple {
 		bits |= 1 << 0
 	}
-
+	
 	if err = binary.Write(w, binary.BigEndian, bits); err != nil {
 		return
 	}
-
+	
 	return
 }
 
 func (msg *basicAck) read(r io.Reader) (err error) {
 	var bits byte
-
+	
 	if err = binary.Read(r, binary.BigEndian, &msg.DeliveryTag); err != nil {
 		return
 	}
-
+	
 	if err = binary.Read(r, binary.BigEndian, &bits); err != nil {
 		return
 	}
 	msg.Multiple = (bits&(1<<0) > 0)
-
+	
 	return
 }
 
@@ -2376,34 +2376,34 @@ func (msg *basicReject) wait() bool {
 
 func (msg *basicReject) write(w io.Writer) (err error) {
 	var bits byte
-
+	
 	if err = binary.Write(w, binary.BigEndian, msg.DeliveryTag); err != nil {
 		return
 	}
-
+	
 	if msg.Requeue {
 		bits |= 1 << 0
 	}
-
+	
 	if err = binary.Write(w, binary.BigEndian, bits); err != nil {
 		return
 	}
-
+	
 	return
 }
 
 func (msg *basicReject) read(r io.Reader) (err error) {
 	var bits byte
-
+	
 	if err = binary.Read(r, binary.BigEndian, &msg.DeliveryTag); err != nil {
 		return
 	}
-
+	
 	if err = binary.Read(r, binary.BigEndian, &bits); err != nil {
 		return
 	}
 	msg.Requeue = (bits&(1<<0) > 0)
-
+	
 	return
 }
 
@@ -2421,26 +2421,26 @@ func (msg *basicRecoverAsync) wait() bool {
 
 func (msg *basicRecoverAsync) write(w io.Writer) (err error) {
 	var bits byte
-
+	
 	if msg.Requeue {
 		bits |= 1 << 0
 	}
-
+	
 	if err = binary.Write(w, binary.BigEndian, bits); err != nil {
 		return
 	}
-
+	
 	return
 }
 
 func (msg *basicRecoverAsync) read(r io.Reader) (err error) {
 	var bits byte
-
+	
 	if err = binary.Read(r, binary.BigEndian, &bits); err != nil {
 		return
 	}
 	msg.Requeue = (bits&(1<<0) > 0)
-
+	
 	return
 }
 
@@ -2458,26 +2458,26 @@ func (msg *basicRecover) wait() bool {
 
 func (msg *basicRecover) write(w io.Writer) (err error) {
 	var bits byte
-
+	
 	if msg.Requeue {
 		bits |= 1 << 0
 	}
-
+	
 	if err = binary.Write(w, binary.BigEndian, bits); err != nil {
 		return
 	}
-
+	
 	return
 }
 
 func (msg *basicRecover) read(r io.Reader) (err error) {
 	var bits byte
-
+	
 	if err = binary.Read(r, binary.BigEndian, &bits); err != nil {
 		return
 	}
 	msg.Requeue = (bits&(1<<0) > 0)
-
+	
 	return
 }
 
@@ -2493,12 +2493,12 @@ func (msg *basicRecoverOk) wait() bool {
 }
 
 func (msg *basicRecoverOk) write(w io.Writer) (err error) {
-
+	
 	return
 }
 
 func (msg *basicRecoverOk) read(r io.Reader) (err error) {
-
+	
 	return
 }
 
@@ -2518,39 +2518,39 @@ func (msg *basicNack) wait() bool {
 
 func (msg *basicNack) write(w io.Writer) (err error) {
 	var bits byte
-
+	
 	if err = binary.Write(w, binary.BigEndian, msg.DeliveryTag); err != nil {
 		return
 	}
-
+	
 	if msg.Multiple {
 		bits |= 1 << 0
 	}
-
+	
 	if msg.Requeue {
 		bits |= 1 << 1
 	}
-
+	
 	if err = binary.Write(w, binary.BigEndian, bits); err != nil {
 		return
 	}
-
+	
 	return
 }
 
 func (msg *basicNack) read(r io.Reader) (err error) {
 	var bits byte
-
+	
 	if err = binary.Read(r, binary.BigEndian, &msg.DeliveryTag); err != nil {
 		return
 	}
-
+	
 	if err = binary.Read(r, binary.BigEndian, &bits); err != nil {
 		return
 	}
 	msg.Multiple = (bits&(1<<0) > 0)
 	msg.Requeue = (bits&(1<<1) > 0)
-
+	
 	return
 }
 
@@ -2566,12 +2566,12 @@ func (msg *txSelect) wait() bool {
 }
 
 func (msg *txSelect) write(w io.Writer) (err error) {
-
+	
 	return
 }
 
 func (msg *txSelect) read(r io.Reader) (err error) {
-
+	
 	return
 }
 
@@ -2587,12 +2587,12 @@ func (msg *txSelectOk) wait() bool {
 }
 
 func (msg *txSelectOk) write(w io.Writer) (err error) {
-
+	
 	return
 }
 
 func (msg *txSelectOk) read(r io.Reader) (err error) {
-
+	
 	return
 }
 
@@ -2608,12 +2608,12 @@ func (msg *txCommit) wait() bool {
 }
 
 func (msg *txCommit) write(w io.Writer) (err error) {
-
+	
 	return
 }
 
 func (msg *txCommit) read(r io.Reader) (err error) {
-
+	
 	return
 }
 
@@ -2629,12 +2629,12 @@ func (msg *txCommitOk) wait() bool {
 }
 
 func (msg *txCommitOk) write(w io.Writer) (err error) {
-
+	
 	return
 }
 
 func (msg *txCommitOk) read(r io.Reader) (err error) {
-
+	
 	return
 }
 
@@ -2650,12 +2650,12 @@ func (msg *txRollback) wait() bool {
 }
 
 func (msg *txRollback) write(w io.Writer) (err error) {
-
+	
 	return
 }
 
 func (msg *txRollback) read(r io.Reader) (err error) {
-
+	
 	return
 }
 
@@ -2671,12 +2671,12 @@ func (msg *txRollbackOk) wait() bool {
 }
 
 func (msg *txRollbackOk) write(w io.Writer) (err error) {
-
+	
 	return
 }
 
 func (msg *txRollbackOk) read(r io.Reader) (err error) {
-
+	
 	return
 }
 
@@ -2694,26 +2694,26 @@ func (msg *confirmSelect) wait() bool {
 
 func (msg *confirmSelect) write(w io.Writer) (err error) {
 	var bits byte
-
+	
 	if msg.Nowait {
 		bits |= 1 << 0
 	}
-
+	
 	if err = binary.Write(w, binary.BigEndian, bits); err != nil {
 		return
 	}
-
+	
 	return
 }
 
 func (msg *confirmSelect) read(r io.Reader) (err error) {
 	var bits byte
-
+	
 	if err = binary.Read(r, binary.BigEndian, &bits); err != nil {
 		return
 	}
 	msg.Nowait = (bits&(1<<0) > 0)
-
+	
 	return
 }
 
@@ -2729,12 +2729,12 @@ func (msg *confirmSelectOk) wait() bool {
 }
 
 func (msg *confirmSelectOk) write(w io.Writer) (err error) {
-
+	
 	return
 }
 
 func (msg *confirmSelectOk) read(r io.Reader) (err error) {
-
+	
 	return
 }
 
@@ -2742,20 +2742,20 @@ func (r *reader) parseMethodFrame(channel uint16, size uint32) (f frame, err err
 	mf := &methodFrame{
 		ChannelId: channel,
 	}
-
+	
 	if err = binary.Read(r.r, binary.BigEndian, &mf.ClassId); err != nil {
 		return
 	}
-
+	
 	if err = binary.Read(r.r, binary.BigEndian, &mf.MethodId); err != nil {
 		return
 	}
-
+	
 	switch mf.ClassId {
-
+	
 	case 10: // connection
 		switch mf.MethodId {
-
+		
 		case 10: // connection start
 			//fmt.Println("NextMethod: class:10 method:10")
 			method := &connectionStart{}
@@ -2763,7 +2763,7 @@ func (r *reader) parseMethodFrame(channel uint16, size uint32) (f frame, err err
 				return
 			}
 			mf.Method = method
-
+		
 		case 11: // connection start-ok
 			//fmt.Println("NextMethod: class:10 method:11")
 			method := &connectionStartOk{}
@@ -2771,7 +2771,7 @@ func (r *reader) parseMethodFrame(channel uint16, size uint32) (f frame, err err
 				return
 			}
 			mf.Method = method
-
+		
 		case 20: // connection secure
 			//fmt.Println("NextMethod: class:10 method:20")
 			method := &connectionSecure{}
@@ -2779,7 +2779,7 @@ func (r *reader) parseMethodFrame(channel uint16, size uint32) (f frame, err err
 				return
 			}
 			mf.Method = method
-
+		
 		case 21: // connection secure-ok
 			//fmt.Println("NextMethod: class:10 method:21")
 			method := &connectionSecureOk{}
@@ -2787,7 +2787,7 @@ func (r *reader) parseMethodFrame(channel uint16, size uint32) (f frame, err err
 				return
 			}
 			mf.Method = method
-
+		
 		case 30: // connection tune
 			//fmt.Println("NextMethod: class:10 method:30")
 			method := &connectionTune{}
@@ -2795,7 +2795,7 @@ func (r *reader) parseMethodFrame(channel uint16, size uint32) (f frame, err err
 				return
 			}
 			mf.Method = method
-
+		
 		case 31: // connection tune-ok
 			//fmt.Println("NextMethod: class:10 method:31")
 			method := &connectionTuneOk{}
@@ -2803,7 +2803,7 @@ func (r *reader) parseMethodFrame(channel uint16, size uint32) (f frame, err err
 				return
 			}
 			mf.Method = method
-
+		
 		case 40: // connection open
 			//fmt.Println("NextMethod: class:10 method:40")
 			method := &connectionOpen{}
@@ -2811,7 +2811,7 @@ func (r *reader) parseMethodFrame(channel uint16, size uint32) (f frame, err err
 				return
 			}
 			mf.Method = method
-
+		
 		case 41: // connection open-ok
 			//fmt.Println("NextMethod: class:10 method:41")
 			method := &connectionOpenOk{}
@@ -2819,7 +2819,7 @@ func (r *reader) parseMethodFrame(channel uint16, size uint32) (f frame, err err
 				return
 			}
 			mf.Method = method
-
+		
 		case 50: // connection close
 			//fmt.Println("NextMethod: class:10 method:50")
 			method := &connectionClose{}
@@ -2827,7 +2827,7 @@ func (r *reader) parseMethodFrame(channel uint16, size uint32) (f frame, err err
 				return
 			}
 			mf.Method = method
-
+		
 		case 51: // connection close-ok
 			//fmt.Println("NextMethod: class:10 method:51")
 			method := &connectionCloseOk{}
@@ -2835,7 +2835,7 @@ func (r *reader) parseMethodFrame(channel uint16, size uint32) (f frame, err err
 				return
 			}
 			mf.Method = method
-
+		
 		case 60: // connection blocked
 			//fmt.Println("NextMethod: class:10 method:60")
 			method := &connectionBlocked{}
@@ -2843,7 +2843,7 @@ func (r *reader) parseMethodFrame(channel uint16, size uint32) (f frame, err err
 				return
 			}
 			mf.Method = method
-
+		
 		case 61: // connection unblocked
 			//fmt.Println("NextMethod: class:10 method:61")
 			method := &connectionUnblocked{}
@@ -2851,14 +2851,14 @@ func (r *reader) parseMethodFrame(channel uint16, size uint32) (f frame, err err
 				return
 			}
 			mf.Method = method
-
+		
 		default:
 			return nil, fmt.Errorf("Bad method frame, unknown method %d for class %d", mf.MethodId, mf.ClassId)
 		}
-
+	
 	case 20: // channel
 		switch mf.MethodId {
-
+		
 		case 10: // channel open
 			//fmt.Println("NextMethod: class:20 method:10")
 			method := &channelOpen{}
@@ -2866,7 +2866,7 @@ func (r *reader) parseMethodFrame(channel uint16, size uint32) (f frame, err err
 				return
 			}
 			mf.Method = method
-
+		
 		case 11: // channel open-ok
 			//fmt.Println("NextMethod: class:20 method:11")
 			method := &channelOpenOk{}
@@ -2874,7 +2874,7 @@ func (r *reader) parseMethodFrame(channel uint16, size uint32) (f frame, err err
 				return
 			}
 			mf.Method = method
-
+		
 		case 20: // channel flow
 			//fmt.Println("NextMethod: class:20 method:20")
 			method := &channelFlow{}
@@ -2882,7 +2882,7 @@ func (r *reader) parseMethodFrame(channel uint16, size uint32) (f frame, err err
 				return
 			}
 			mf.Method = method
-
+		
 		case 21: // channel flow-ok
 			//fmt.Println("NextMethod: class:20 method:21")
 			method := &channelFlowOk{}
@@ -2890,7 +2890,7 @@ func (r *reader) parseMethodFrame(channel uint16, size uint32) (f frame, err err
 				return
 			}
 			mf.Method = method
-
+		
 		case 40: // channel close
 			//fmt.Println("NextMethod: class:20 method:40")
 			method := &channelClose{}
@@ -2898,7 +2898,7 @@ func (r *reader) parseMethodFrame(channel uint16, size uint32) (f frame, err err
 				return
 			}
 			mf.Method = method
-
+		
 		case 41: // channel close-ok
 			//fmt.Println("NextMethod: class:20 method:41")
 			method := &channelCloseOk{}
@@ -2906,14 +2906,14 @@ func (r *reader) parseMethodFrame(channel uint16, size uint32) (f frame, err err
 				return
 			}
 			mf.Method = method
-
+		
 		default:
 			return nil, fmt.Errorf("Bad method frame, unknown method %d for class %d", mf.MethodId, mf.ClassId)
 		}
-
+	
 	case 40: // exchange
 		switch mf.MethodId {
-
+		
 		case 10: // exchange declare
 			//fmt.Println("NextMethod: class:40 method:10")
 			method := &exchangeDeclare{}
@@ -2921,7 +2921,7 @@ func (r *reader) parseMethodFrame(channel uint16, size uint32) (f frame, err err
 				return
 			}
 			mf.Method = method
-
+		
 		case 11: // exchange declare-ok
 			//fmt.Println("NextMethod: class:40 method:11")
 			method := &exchangeDeclareOk{}
@@ -2929,7 +2929,7 @@ func (r *reader) parseMethodFrame(channel uint16, size uint32) (f frame, err err
 				return
 			}
 			mf.Method = method
-
+		
 		case 20: // exchange delete
 			//fmt.Println("NextMethod: class:40 method:20")
 			method := &exchangeDelete{}
@@ -2937,7 +2937,7 @@ func (r *reader) parseMethodFrame(channel uint16, size uint32) (f frame, err err
 				return
 			}
 			mf.Method = method
-
+		
 		case 21: // exchange delete-ok
 			//fmt.Println("NextMethod: class:40 method:21")
 			method := &exchangeDeleteOk{}
@@ -2945,7 +2945,7 @@ func (r *reader) parseMethodFrame(channel uint16, size uint32) (f frame, err err
 				return
 			}
 			mf.Method = method
-
+		
 		case 30: // exchange bind
 			//fmt.Println("NextMethod: class:40 method:30")
 			method := &exchangeBind{}
@@ -2953,7 +2953,7 @@ func (r *reader) parseMethodFrame(channel uint16, size uint32) (f frame, err err
 				return
 			}
 			mf.Method = method
-
+		
 		case 31: // exchange bind-ok
 			//fmt.Println("NextMethod: class:40 method:31")
 			method := &exchangeBindOk{}
@@ -2961,7 +2961,7 @@ func (r *reader) parseMethodFrame(channel uint16, size uint32) (f frame, err err
 				return
 			}
 			mf.Method = method
-
+		
 		case 40: // exchange unbind
 			//fmt.Println("NextMethod: class:40 method:40")
 			method := &exchangeUnbind{}
@@ -2969,7 +2969,7 @@ func (r *reader) parseMethodFrame(channel uint16, size uint32) (f frame, err err
 				return
 			}
 			mf.Method = method
-
+		
 		case 51: // exchange unbind-ok
 			//fmt.Println("NextMethod: class:40 method:51")
 			method := &exchangeUnbindOk{}
@@ -2977,14 +2977,14 @@ func (r *reader) parseMethodFrame(channel uint16, size uint32) (f frame, err err
 				return
 			}
 			mf.Method = method
-
+		
 		default:
 			return nil, fmt.Errorf("Bad method frame, unknown method %d for class %d", mf.MethodId, mf.ClassId)
 		}
-
+	
 	case 50: // queue
 		switch mf.MethodId {
-
+		
 		case 10: // queue declare
 			//fmt.Println("NextMethod: class:50 method:10")
 			method := &queueDeclare{}
@@ -2992,7 +2992,7 @@ func (r *reader) parseMethodFrame(channel uint16, size uint32) (f frame, err err
 				return
 			}
 			mf.Method = method
-
+		
 		case 11: // queue declare-ok
 			//fmt.Println("NextMethod: class:50 method:11")
 			method := &queueDeclareOk{}
@@ -3000,7 +3000,7 @@ func (r *reader) parseMethodFrame(channel uint16, size uint32) (f frame, err err
 				return
 			}
 			mf.Method = method
-
+		
 		case 20: // queue bind
 			//fmt.Println("NextMethod: class:50 method:20")
 			method := &queueBind{}
@@ -3008,7 +3008,7 @@ func (r *reader) parseMethodFrame(channel uint16, size uint32) (f frame, err err
 				return
 			}
 			mf.Method = method
-
+		
 		case 21: // queue bind-ok
 			//fmt.Println("NextMethod: class:50 method:21")
 			method := &queueBindOk{}
@@ -3016,7 +3016,7 @@ func (r *reader) parseMethodFrame(channel uint16, size uint32) (f frame, err err
 				return
 			}
 			mf.Method = method
-
+		
 		case 50: // queue unbind
 			//fmt.Println("NextMethod: class:50 method:50")
 			method := &queueUnbind{}
@@ -3024,7 +3024,7 @@ func (r *reader) parseMethodFrame(channel uint16, size uint32) (f frame, err err
 				return
 			}
 			mf.Method = method
-
+		
 		case 51: // queue unbind-ok
 			//fmt.Println("NextMethod: class:50 method:51")
 			method := &queueUnbindOk{}
@@ -3032,7 +3032,7 @@ func (r *reader) parseMethodFrame(channel uint16, size uint32) (f frame, err err
 				return
 			}
 			mf.Method = method
-
+		
 		case 30: // queue purge
 			//fmt.Println("NextMethod: class:50 method:30")
 			method := &queuePurge{}
@@ -3040,7 +3040,7 @@ func (r *reader) parseMethodFrame(channel uint16, size uint32) (f frame, err err
 				return
 			}
 			mf.Method = method
-
+		
 		case 31: // queue purge-ok
 			//fmt.Println("NextMethod: class:50 method:31")
 			method := &queuePurgeOk{}
@@ -3048,7 +3048,7 @@ func (r *reader) parseMethodFrame(channel uint16, size uint32) (f frame, err err
 				return
 			}
 			mf.Method = method
-
+		
 		case 40: // queue delete
 			//fmt.Println("NextMethod: class:50 method:40")
 			method := &queueDelete{}
@@ -3056,7 +3056,7 @@ func (r *reader) parseMethodFrame(channel uint16, size uint32) (f frame, err err
 				return
 			}
 			mf.Method = method
-
+		
 		case 41: // queue delete-ok
 			//fmt.Println("NextMethod: class:50 method:41")
 			method := &queueDeleteOk{}
@@ -3064,14 +3064,14 @@ func (r *reader) parseMethodFrame(channel uint16, size uint32) (f frame, err err
 				return
 			}
 			mf.Method = method
-
+		
 		default:
 			return nil, fmt.Errorf("Bad method frame, unknown method %d for class %d", mf.MethodId, mf.ClassId)
 		}
-
+	
 	case 60: // basic
 		switch mf.MethodId {
-
+		
 		case 10: // basic qos
 			//fmt.Println("NextMethod: class:60 method:10")
 			method := &basicQos{}
@@ -3079,7 +3079,7 @@ func (r *reader) parseMethodFrame(channel uint16, size uint32) (f frame, err err
 				return
 			}
 			mf.Method = method
-
+		
 		case 11: // basic qos-ok
 			//fmt.Println("NextMethod: class:60 method:11")
 			method := &basicQosOk{}
@@ -3087,7 +3087,7 @@ func (r *reader) parseMethodFrame(channel uint16, size uint32) (f frame, err err
 				return
 			}
 			mf.Method = method
-
+		
 		case 20: // basic consume
 			//fmt.Println("NextMethod: class:60 method:20")
 			method := &basicConsume{}
@@ -3095,7 +3095,7 @@ func (r *reader) parseMethodFrame(channel uint16, size uint32) (f frame, err err
 				return
 			}
 			mf.Method = method
-
+		
 		case 21: // basic consume-ok
 			//fmt.Println("NextMethod: class:60 method:21")
 			method := &basicConsumeOk{}
@@ -3103,7 +3103,7 @@ func (r *reader) parseMethodFrame(channel uint16, size uint32) (f frame, err err
 				return
 			}
 			mf.Method = method
-
+		
 		case 30: // basic cancel
 			//fmt.Println("NextMethod: class:60 method:30")
 			method := &basicCancel{}
@@ -3111,7 +3111,7 @@ func (r *reader) parseMethodFrame(channel uint16, size uint32) (f frame, err err
 				return
 			}
 			mf.Method = method
-
+		
 		case 31: // basic cancel-ok
 			//fmt.Println("NextMethod: class:60 method:31")
 			method := &basicCancelOk{}
@@ -3119,7 +3119,7 @@ func (r *reader) parseMethodFrame(channel uint16, size uint32) (f frame, err err
 				return
 			}
 			mf.Method = method
-
+		
 		case 40: // basic publish
 			//fmt.Println("NextMethod: class:60 method:40")
 			method := &basicPublish{}
@@ -3127,7 +3127,7 @@ func (r *reader) parseMethodFrame(channel uint16, size uint32) (f frame, err err
 				return
 			}
 			mf.Method = method
-
+		
 		case 50: // basic return
 			//fmt.Println("NextMethod: class:60 method:50")
 			method := &basicReturn{}
@@ -3135,7 +3135,7 @@ func (r *reader) parseMethodFrame(channel uint16, size uint32) (f frame, err err
 				return
 			}
 			mf.Method = method
-
+		
 		case 60: // basic deliver
 			//fmt.Println("NextMethod: class:60 method:60")
 			method := &basicDeliver{}
@@ -3143,7 +3143,7 @@ func (r *reader) parseMethodFrame(channel uint16, size uint32) (f frame, err err
 				return
 			}
 			mf.Method = method
-
+		
 		case 70: // basic get
 			//fmt.Println("NextMethod: class:60 method:70")
 			method := &basicGet{}
@@ -3151,7 +3151,7 @@ func (r *reader) parseMethodFrame(channel uint16, size uint32) (f frame, err err
 				return
 			}
 			mf.Method = method
-
+		
 		case 71: // basic get-ok
 			//fmt.Println("NextMethod: class:60 method:71")
 			method := &basicGetOk{}
@@ -3159,7 +3159,7 @@ func (r *reader) parseMethodFrame(channel uint16, size uint32) (f frame, err err
 				return
 			}
 			mf.Method = method
-
+		
 		case 72: // basic get-empty
 			//fmt.Println("NextMethod: class:60 method:72")
 			method := &basicGetEmpty{}
@@ -3167,7 +3167,7 @@ func (r *reader) parseMethodFrame(channel uint16, size uint32) (f frame, err err
 				return
 			}
 			mf.Method = method
-
+		
 		case 80: // basic ack
 			//fmt.Println("NextMethod: class:60 method:80")
 			method := &basicAck{}
@@ -3175,7 +3175,7 @@ func (r *reader) parseMethodFrame(channel uint16, size uint32) (f frame, err err
 				return
 			}
 			mf.Method = method
-
+		
 		case 90: // basic reject
 			//fmt.Println("NextMethod: class:60 method:90")
 			method := &basicReject{}
@@ -3183,7 +3183,7 @@ func (r *reader) parseMethodFrame(channel uint16, size uint32) (f frame, err err
 				return
 			}
 			mf.Method = method
-
+		
 		case 100: // basic recover-async
 			//fmt.Println("NextMethod: class:60 method:100")
 			method := &basicRecoverAsync{}
@@ -3191,7 +3191,7 @@ func (r *reader) parseMethodFrame(channel uint16, size uint32) (f frame, err err
 				return
 			}
 			mf.Method = method
-
+		
 		case 110: // basic recover
 			//fmt.Println("NextMethod: class:60 method:110")
 			method := &basicRecover{}
@@ -3199,7 +3199,7 @@ func (r *reader) parseMethodFrame(channel uint16, size uint32) (f frame, err err
 				return
 			}
 			mf.Method = method
-
+		
 		case 111: // basic recover-ok
 			//fmt.Println("NextMethod: class:60 method:111")
 			method := &basicRecoverOk{}
@@ -3207,7 +3207,7 @@ func (r *reader) parseMethodFrame(channel uint16, size uint32) (f frame, err err
 				return
 			}
 			mf.Method = method
-
+		
 		case 120: // basic nack
 			//fmt.Println("NextMethod: class:60 method:120")
 			method := &basicNack{}
@@ -3215,14 +3215,14 @@ func (r *reader) parseMethodFrame(channel uint16, size uint32) (f frame, err err
 				return
 			}
 			mf.Method = method
-
+		
 		default:
 			return nil, fmt.Errorf("Bad method frame, unknown method %d for class %d", mf.MethodId, mf.ClassId)
 		}
-
+	
 	case 90: // tx
 		switch mf.MethodId {
-
+		
 		case 10: // tx select
 			//fmt.Println("NextMethod: class:90 method:10")
 			method := &txSelect{}
@@ -3230,7 +3230,7 @@ func (r *reader) parseMethodFrame(channel uint16, size uint32) (f frame, err err
 				return
 			}
 			mf.Method = method
-
+		
 		case 11: // tx select-ok
 			//fmt.Println("NextMethod: class:90 method:11")
 			method := &txSelectOk{}
@@ -3238,7 +3238,7 @@ func (r *reader) parseMethodFrame(channel uint16, size uint32) (f frame, err err
 				return
 			}
 			mf.Method = method
-
+		
 		case 20: // tx commit
 			//fmt.Println("NextMethod: class:90 method:20")
 			method := &txCommit{}
@@ -3246,7 +3246,7 @@ func (r *reader) parseMethodFrame(channel uint16, size uint32) (f frame, err err
 				return
 			}
 			mf.Method = method
-
+		
 		case 21: // tx commit-ok
 			//fmt.Println("NextMethod: class:90 method:21")
 			method := &txCommitOk{}
@@ -3254,7 +3254,7 @@ func (r *reader) parseMethodFrame(channel uint16, size uint32) (f frame, err err
 				return
 			}
 			mf.Method = method
-
+		
 		case 30: // tx rollback
 			//fmt.Println("NextMethod: class:90 method:30")
 			method := &txRollback{}
@@ -3262,7 +3262,7 @@ func (r *reader) parseMethodFrame(channel uint16, size uint32) (f frame, err err
 				return
 			}
 			mf.Method = method
-
+		
 		case 31: // tx rollback-ok
 			//fmt.Println("NextMethod: class:90 method:31")
 			method := &txRollbackOk{}
@@ -3270,14 +3270,14 @@ func (r *reader) parseMethodFrame(channel uint16, size uint32) (f frame, err err
 				return
 			}
 			mf.Method = method
-
+		
 		default:
 			return nil, fmt.Errorf("Bad method frame, unknown method %d for class %d", mf.MethodId, mf.ClassId)
 		}
-
+	
 	case 85: // confirm
 		switch mf.MethodId {
-
+		
 		case 10: // confirm select
 			//fmt.Println("NextMethod: class:85 method:10")
 			method := &confirmSelect{}
@@ -3285,7 +3285,7 @@ func (r *reader) parseMethodFrame(channel uint16, size uint32) (f frame, err err
 				return
 			}
 			mf.Method = method
-
+		
 		case 11: // confirm select-ok
 			//fmt.Println("NextMethod: class:85 method:11")
 			method := &confirmSelectOk{}
@@ -3293,14 +3293,14 @@ func (r *reader) parseMethodFrame(channel uint16, size uint32) (f frame, err err
 				return
 			}
 			mf.Method = method
-
+		
 		default:
 			return nil, fmt.Errorf("Bad method frame, unknown method %d for class %d", mf.MethodId, mf.ClassId)
 		}
-
+	
 	default:
 		return nil, fmt.Errorf("Bad method frame, unknown class %d", mf.ClassId)
 	}
-
+	
 	return mf, nil
 }

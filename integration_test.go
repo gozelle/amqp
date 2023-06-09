@@ -1,8 +1,9 @@
 // Copyright (c) 2012, Sean Treadway, SoundCloud Ltd.
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
-// Source code and contact info at http://github.com/streadway/amqp
+// Source code and contact info at http://github.com/gozelle/amqp
 
+//go:build integration
 // +build integration
 
 package amqp
@@ -38,7 +39,7 @@ func TestIntegrationOpenClose(t *testing.T) {
 func TestIntegrationOpenCloseChannel(t *testing.T) {
 	if c := integrationConnection(t, "channel"); c != nil {
 		defer c.Close()
-
+		
 		ch, err := c.Channel()
 		if err != nil {
 			t.Fatalf("create channel 1: %s", err)
@@ -50,7 +51,7 @@ func TestIntegrationOpenCloseChannel(t *testing.T) {
 func TestIntegrationHighChannelChurnInTightLoop(t *testing.T) {
 	if c := integrationConnection(t, "channel churn"); c != nil {
 		defer c.Close()
-
+		
 		for i := 0; i < 1000; i++ {
 			ch, err := c.Channel()
 			if err != nil {
@@ -63,16 +64,16 @@ func TestIntegrationHighChannelChurnInTightLoop(t *testing.T) {
 
 func TestIntegrationOpenConfig(t *testing.T) {
 	config := Config{}
-
+	
 	c, err := DialConfig(integrationURLFromEnv(), config)
 	if err != nil {
 		t.Fatalf("expected to dial with config %+v integration server: %s", config, err)
 	}
-
+	
 	if _, err := c.Channel(); err != nil {
 		t.Errorf("expected to open channel: %s", err)
 	}
-
+	
 	if err := c.Close(); err != nil {
 		t.Errorf("expected to close the connection: %s", err)
 	}
@@ -80,16 +81,16 @@ func TestIntegrationOpenConfig(t *testing.T) {
 
 func TestIntegrationOpenConfigWithNetDial(t *testing.T) {
 	config := Config{Dial: net.Dial}
-
+	
 	c, err := DialConfig(integrationURLFromEnv(), config)
 	if err != nil {
 		t.Fatalf("expected to dial with config %+v integration server: %s", config, err)
 	}
-
+	
 	if _, err := c.Channel(); err != nil {
 		t.Errorf("expected to open channel: %s", err)
 	}
-
+	
 	if err := c.Close(); err != nil {
 		t.Errorf("expected to close the connection: %s", err)
 	}
@@ -97,19 +98,19 @@ func TestIntegrationOpenConfigWithNetDial(t *testing.T) {
 
 func TestIntegrationLocalAddr(t *testing.T) {
 	config := Config{}
-
+	
 	c, err := DialConfig(integrationURLFromEnv(), config)
 	if err != nil {
 		t.Fatalf("expected to dial with config %+v integration server: %s", config, err)
 	}
 	defer c.Close()
-
+	
 	a := c.LocalAddr()
 	_, portString, err := net.SplitHostPort(a.String())
 	if err != nil {
 		t.Errorf("expected to get a local network address with config %+v integration server: %s", config, a.String())
 	}
-
+	
 	port, err := strconv.Atoi(portString)
 	if err != nil {
 		t.Errorf("expected to get a TCP port number with config %+v integration server: %s", config, err)
@@ -117,18 +118,18 @@ func TestIntegrationLocalAddr(t *testing.T) {
 	t.Logf("Connected to port %d\n", port)
 }
 
-// https://github.com/streadway/amqp/issues/94
+// https://github.com/gozelle/amqp/issues/94
 func TestExchangePassiveOnMissingExchangeShouldError(t *testing.T) {
 	c := integrationConnection(t, "exch")
 	if c != nil {
 		defer c.Close()
-
+		
 		ch, err := c.Channel()
 		if err != nil {
 			t.Fatalf("create channel 1: %s", err)
 		}
 		defer ch.Close()
-
+		
 		if err := ch.ExchangeDeclarePassive(
 			"test-integration-missing-passive-exchange",
 			"direct", // type
@@ -143,20 +144,20 @@ func TestExchangePassiveOnMissingExchangeShouldError(t *testing.T) {
 	}
 }
 
-// https://github.com/streadway/amqp/issues/94
+// https://github.com/gozelle/amqp/issues/94
 func TestIntegrationExchangeDeclarePassiveOnDeclaredShouldNotError(t *testing.T) {
 	c := integrationConnection(t, "exch")
 	if c != nil {
 		defer c.Close()
-
+		
 		exchange := "test-integration-declared-passive-exchange"
-
+		
 		ch, err := c.Channel()
 		if err != nil {
 			t.Fatalf("create channel: %s", err)
 		}
 		defer ch.Close()
-
+		
 		if err := ch.ExchangeDeclare(
 			exchange, // name
 			"direct", // type
@@ -168,7 +169,7 @@ func TestIntegrationExchangeDeclarePassiveOnDeclaredShouldNotError(t *testing.T)
 		); err != nil {
 			t.Fatalf("declare exchange: %s", err)
 		}
-
+		
 		if err := ch.ExchangeDeclarePassive(
 			exchange, // name
 			"direct", // type
@@ -187,15 +188,15 @@ func TestIntegrationExchange(t *testing.T) {
 	c := integrationConnection(t, "exch")
 	if c != nil {
 		defer c.Close()
-
+		
 		channel, err := c.Channel()
 		if err != nil {
 			t.Fatalf("create channel: %s", err)
 		}
 		t.Logf("create channel OK")
-
+		
 		exchange := "test-integration-exchange"
-
+		
 		if err := channel.ExchangeDeclare(
 			exchange, // name
 			"direct", // type
@@ -208,12 +209,12 @@ func TestIntegrationExchange(t *testing.T) {
 			t.Fatalf("declare exchange: %s", err)
 		}
 		t.Logf("declare exchange OK")
-
+		
 		if err := channel.ExchangeDelete(exchange, false, false); err != nil {
 			t.Fatalf("delete exchange: %s", err)
 		}
 		t.Logf("delete exchange OK")
-
+		
 		if err := channel.Close(); err != nil {
 			t.Fatalf("close channel: %s", err)
 		}
@@ -221,18 +222,18 @@ func TestIntegrationExchange(t *testing.T) {
 	}
 }
 
-// https://github.com/streadway/amqp/issues/94
+// https://github.com/gozelle/amqp/issues/94
 func TestIntegrationQueueDeclarePassiveOnMissingExchangeShouldError(t *testing.T) {
 	c := integrationConnection(t, "queue")
 	if c != nil {
 		defer c.Close()
-
+		
 		ch, err := c.Channel()
 		if err != nil {
 			t.Fatalf("create channel1: %s", err)
 		}
 		defer ch.Close()
-
+		
 		if _, err := ch.QueueDeclarePassive(
 			"test-integration-missing-passive-queue", // name
 			false,                                    // duration (note: not durable)
@@ -246,20 +247,20 @@ func TestIntegrationQueueDeclarePassiveOnMissingExchangeShouldError(t *testing.T
 	}
 }
 
-// https://github.com/streadway/amqp/issues/94
+// https://github.com/gozelle/amqp/issues/94
 func TestIntegrationPassiveQueue(t *testing.T) {
 	c := integrationConnection(t, "queue")
 	if c != nil {
 		defer c.Close()
-
+		
 		name := "test-integration-declared-passive-queue"
-
+		
 		ch, err := c.Channel()
 		if err != nil {
 			t.Fatalf("create channel1: %s", err)
 		}
 		defer ch.Close()
-
+		
 		if _, err := ch.QueueDeclare(
 			name,  // name
 			false, // durable
@@ -270,7 +271,7 @@ func TestIntegrationPassiveQueue(t *testing.T) {
 		); err != nil {
 			t.Fatalf("queue declare: %s", err)
 		}
-
+		
 		if _, err := ch.QueueDeclarePassive(
 			name,  // name
 			false, // durable
@@ -281,7 +282,7 @@ func TestIntegrationPassiveQueue(t *testing.T) {
 		); err != nil {
 			t.Fatalf("QueueDeclarePassive on declared queue should not error, got: %q", err)
 		}
-
+		
 		if _, err := ch.QueueDeclarePassive(
 			name,  // name
 			true,  // durable (note: differs)
@@ -299,19 +300,19 @@ func TestIntegrationBasicQueueOperations(t *testing.T) {
 	c := integrationConnection(t, "queue")
 	if c != nil {
 		defer c.Close()
-
+		
 		channel, err := c.Channel()
 		if err != nil {
 			t.Fatalf("create channel: %s", err)
 		}
 		t.Logf("create channel OK")
-
+		
 		exchangeName := "test-basic-ops-exchange"
 		queueName := "test-basic-ops-queue"
-
+		
 		deleteQueueFirstOptions := []bool{true, false}
 		for _, deleteQueueFirst := range deleteQueueFirstOptions {
-
+			
 			if err := channel.ExchangeDeclare(
 				exchangeName, // name
 				"direct",     // type
@@ -324,7 +325,7 @@ func TestIntegrationBasicQueueOperations(t *testing.T) {
 				t.Fatalf("declare exchange: %s", err)
 			}
 			t.Logf("declare exchange OK")
-
+			
 			if _, err := channel.QueueDeclare(
 				queueName, // name
 				true,      // duration (note: durable)
@@ -336,7 +337,7 @@ func TestIntegrationBasicQueueOperations(t *testing.T) {
 				t.Fatalf("queue declare: %s", err)
 			}
 			t.Logf("declare queue OK")
-
+			
 			if err := channel.QueueBind(
 				queueName,    // name
 				"",           // routingKey
@@ -347,7 +348,7 @@ func TestIntegrationBasicQueueOperations(t *testing.T) {
 				t.Fatalf("queue bind: %s", err)
 			}
 			t.Logf("queue bind OK")
-
+			
 			if deleteQueueFirst {
 				if _, err := channel.QueueDelete(
 					queueName, // name
@@ -358,23 +359,23 @@ func TestIntegrationBasicQueueOperations(t *testing.T) {
 					t.Fatalf("delete queue (first): %s", err)
 				}
 				t.Logf("delete queue (first) OK")
-
+				
 				if err := channel.ExchangeDelete(exchangeName, false, false); err != nil {
 					t.Fatalf("delete exchange (after delete queue): %s", err)
 				}
 				t.Logf("delete exchange (after delete queue) OK")
-
+				
 			} else { // deleteExchangeFirst
 				if err := channel.ExchangeDelete(exchangeName, false, false); err != nil {
 					t.Fatalf("delete exchange (first): %s", err)
 				}
 				t.Logf("delete exchange (first) OK")
-
+				
 				if _, err := channel.QueueInspect(queueName); err != nil {
 					t.Fatalf("inspect queue state after deleting exchange: %s", err)
 				}
 				t.Logf("queue properly remains after exchange is deleted")
-
+				
 				if _, err := channel.QueueDelete(
 					queueName,
 					false, // ifUnused
@@ -386,7 +387,7 @@ func TestIntegrationBasicQueueOperations(t *testing.T) {
 				t.Logf("delete queue (after delete exchange) OK")
 			}
 		}
-
+		
 		if err := channel.Close(); err != nil {
 			t.Fatalf("close channel: %s", err)
 		}
@@ -396,13 +397,13 @@ func TestIntegrationBasicQueueOperations(t *testing.T) {
 
 func TestIntegrationConnectionNegotiatesMaxChannels(t *testing.T) {
 	config := Config{ChannelMax: 0}
-
+	
 	c, err := DialConfig(integrationURLFromEnv(), config)
 	if err != nil {
 		t.Fatalf("expected to dial with config %+v integration server: %s", config, err)
 	}
 	defer c.Close()
-
+	
 	if want, got := defaultChannelMax, c.Config.ChannelMax; want != got {
 		t.Errorf("expected connection to negotiate uint16 (%d) channels, got: %d", want, got)
 	}
@@ -410,13 +411,13 @@ func TestIntegrationConnectionNegotiatesMaxChannels(t *testing.T) {
 
 func TestIntegrationConnectionNegotiatesClientMaxChannels(t *testing.T) {
 	config := Config{ChannelMax: 16}
-
+	
 	c, err := DialConfig(integrationURLFromEnv(), config)
 	if err != nil {
 		t.Fatalf("expected to dial with config %+v integration server: %s", config, err)
 	}
 	defer c.Close()
-
+	
 	if want, got := config.ChannelMax, c.Config.ChannelMax; want != got {
 		t.Errorf("expected client specified channel limit after handshake %d, got: %d", want, got)
 	}
@@ -424,19 +425,19 @@ func TestIntegrationConnectionNegotiatesClientMaxChannels(t *testing.T) {
 
 func TestIntegrationChannelIDsExhausted(t *testing.T) {
 	config := Config{ChannelMax: 16}
-
+	
 	c, err := DialConfig(integrationURLFromEnv(), config)
 	if err != nil {
 		t.Fatalf("expected to dial with config %+v integration server: %s", config, err)
 	}
 	defer c.Close()
-
+	
 	for i := 1; i <= c.Config.ChannelMax; i++ {
 		if _, err := c.Channel(); err != nil {
 			t.Fatalf("expected allocating all channel ids to succed, failed on %d with %v", i, err)
 		}
 	}
-
+	
 	if _, err := c.Channel(); err != ErrChannelMax {
 		t.Fatalf("expected allocating all channels to produce the client side error %#v, got: %#v", ErrChannelMax, err)
 	}
@@ -446,26 +447,26 @@ func TestIntegrationChannelClosing(t *testing.T) {
 	c := integrationConnection(t, "closings")
 	if c != nil {
 		defer c.Close()
-
+		
 		// This function is run on every channel after it is successfully
 		// opened. It can do something to verify something. It should be
 		// quick; many channels may be opened!
 		f := func(t *testing.T, c *Channel) {
 			return
 		}
-
+		
 		// open and close
 		channel, err := c.Channel()
 		if err != nil {
 			t.Fatalf("basic create channel: %s", err)
 		}
 		t.Logf("basic create channel OK")
-
+		
 		if err := channel.Close(); err != nil {
 			t.Fatalf("basic close channel: %s", err)
 		}
 		t.Logf("basic close channel OK")
-
+		
 		// deferred close
 		signal := make(chan bool)
 		go func() {
@@ -474,10 +475,10 @@ func TestIntegrationChannelClosing(t *testing.T) {
 				t.Fatalf("second create channel: %s", err)
 			}
 			t.Logf("second create channel OK")
-
+			
 			<-signal // a bit of synchronization
 			f(t, channel)
-
+			
 			defer func() {
 				if err := channel.Close(); err != nil {
 					t.Fatalf("deferred close channel: %s", err)
@@ -494,7 +495,7 @@ func TestIntegrationChannelClosing(t *testing.T) {
 		case <-time.After(250 * time.Millisecond):
 			t.Fatalf("deferred close: timeout")
 		}
-
+		
 		// multiple channels
 		for _, n := range []int{2, 4, 8, 16, 32, 64, 128, 256} {
 			channels := make([]*Channel, n)
@@ -512,7 +513,7 @@ func TestIntegrationChannelClosing(t *testing.T) {
 			}
 			t.Logf("created/closed %d channels OK", n)
 		}
-
+		
 	}
 }
 
@@ -520,33 +521,33 @@ func TestIntegrationMeaningfulChannelErrors(t *testing.T) {
 	c := integrationConnection(t, "pub")
 	if c != nil {
 		defer c.Close()
-
+		
 		ch, err := c.Channel()
 		if err != nil {
 			t.Fatalf("Could not create channel")
 		}
-
+		
 		queue := "test.integration.channel.error"
-
+		
 		_, err = ch.QueueDeclare(queue, false, true, false, false, nil)
 		if err != nil {
 			t.Fatalf("Could not declare")
 		}
-
+		
 		_, err = ch.QueueDeclare(queue, true, false, false, false, nil)
 		if err == nil {
 			t.Fatalf("Expected error, got nil")
 		}
-
+		
 		e, ok := err.(*Error)
 		if !ok {
 			t.Fatalf("Expected type Error response, got %T", err)
 		}
-
+		
 		if e.Code != PreconditionFailed {
 			t.Fatalf("Expected PreconditionFailed, got: %+v", e)
 		}
-
+		
 		_, err = ch.QueueDeclare(queue, false, true, false, false, nil)
 		if err != ErrClosed {
 			t.Fatalf("Expected channel to be closed, got: %T", err)
@@ -554,45 +555,45 @@ func TestIntegrationMeaningfulChannelErrors(t *testing.T) {
 	}
 }
 
-// https://github.com/streadway/amqp/issues/6
+// https://github.com/gozelle/amqp/issues/6
 func TestIntegrationNonBlockingClose(t *testing.T) {
 	c := integrationConnection(t, "#6")
 	if c != nil {
 		defer c.Close()
-
+		
 		ch, err := c.Channel()
 		if err != nil {
 			t.Fatalf("Could not create channel")
 		}
-
+		
 		queue := "test.integration.blocking.close"
-
+		
 		_, err = ch.QueueDeclare(queue, false, true, false, false, nil)
 		if err != nil {
 			t.Fatalf("Could not declare")
 		}
-
+		
 		msgs, err := ch.Consume(queue, "", false, false, false, false, nil)
 		if err != nil {
 			t.Fatalf("Could not consume")
 		}
-
+		
 		// Simulate a consumer
 		go func() {
 			for range msgs {
 				t.Logf("Oh my, received message on an empty queue")
 			}
 		}()
-
+		
 		succeed := make(chan bool)
-
+		
 		go func() {
 			if err = ch.Close(); err != nil {
 				t.Fatalf("Close produced an error when it shouldn't")
 			}
 			succeed <- true
 		}()
-
+		
 		select {
 		case <-succeed:
 			break
@@ -604,27 +605,27 @@ func TestIntegrationNonBlockingClose(t *testing.T) {
 
 func TestIntegrationPublishConsume(t *testing.T) {
 	queue := "test.integration.publish.consume"
-
+	
 	c1 := integrationConnection(t, "pub")
 	c2 := integrationConnection(t, "sub")
-
+	
 	if c1 != nil && c2 != nil {
 		defer c1.Close()
 		defer c2.Close()
-
+		
 		pub, _ := c1.Channel()
 		sub, _ := c2.Channel()
-
+		
 		pub.QueueDeclare(queue, false, true, false, false, nil)
 		sub.QueueDeclare(queue, false, true, false, false, nil)
 		defer pub.QueueDelete(queue, false, false, false)
-
+		
 		messages, _ := sub.Consume(queue, "", false, false, false, false, nil)
-
+		
 		pub.Publish("", queue, false, false, Publishing{Body: []byte("pub 1")})
 		pub.Publish("", queue, false, false, Publishing{Body: []byte("pub 2")})
 		pub.Publish("", queue, false, false, Publishing{Body: []byte("pub 3")})
-
+		
 		assertConsumeBody(t, messages, []byte("pub 1"))
 		assertConsumeBody(t, messages, []byte("pub 2"))
 		assertConsumeBody(t, messages, []byte("pub 3"))
@@ -633,45 +634,45 @@ func TestIntegrationPublishConsume(t *testing.T) {
 
 func TestIntegrationConsumeFlow(t *testing.T) {
 	queue := "test.integration.consumer-flow"
-
+	
 	c1 := integrationConnection(t, "pub-flow")
 	c2 := integrationConnection(t, "sub-flow")
-
+	
 	if c1 != nil && c2 != nil {
 		defer c1.Close()
 		defer c2.Close()
-
+		
 		pub, _ := c1.Channel()
 		sub, _ := c2.Channel()
-
+		
 		pub.QueueDeclare(queue, false, true, false, false, nil)
 		sub.QueueDeclare(queue, false, true, false, false, nil)
 		defer pub.QueueDelete(queue, false, false, false)
-
+		
 		sub.Qos(1, 0, false)
-
+		
 		messages, _ := sub.Consume(queue, "", false, false, false, false, nil)
-
+		
 		pub.Publish("", queue, false, false, Publishing{Body: []byte("pub 1")})
 		pub.Publish("", queue, false, false, Publishing{Body: []byte("pub 2")})
-
+		
 		msg := assertConsumeBody(t, messages, []byte("pub 1"))
-
+		
 		if err := sub.Flow(false); err.(*Error).Code == NotImplemented {
 			t.Log("flow control is not supported on this version of rabbitmq")
 			return
 		}
-
+		
 		msg.Ack(false)
-
+		
 		select {
 		case <-messages:
 			t.Fatalf("message was delivered when flow was not active")
 		default:
 		}
-
+		
 		sub.Flow(true)
-
+		
 		msg = assertConsumeBody(t, messages, []byte("pub 2"))
 		msg.Ack(false)
 	}
@@ -679,13 +680,13 @@ func TestIntegrationConsumeFlow(t *testing.T) {
 
 func TestIntegrationRecoverNotImplemented(t *testing.T) {
 	queue := "test.recover"
-
+	
 	if c, ch := integrationQueue(t, queue); c != nil {
 		if product, ok := c.Properties["product"]; ok && product.(string) == "RabbitMQ" {
 			defer c.Close()
-
+			
 			err := ch.Recover(false)
-
+			
 			if ex, ok := err.(*Error); !ok || ex.Code != 540 {
 				t.Fatalf("Expected NOT IMPLEMENTED got: %v", ex)
 			}
@@ -702,30 +703,30 @@ func TestIntegrationPublishFlow(t *testing.T) {
 
 func TestIntegrationConsumeCancel(t *testing.T) {
 	queue := "test.integration.consume-cancel"
-
+	
 	c := integrationConnection(t, "pub")
-
+	
 	if c != nil {
 		defer c.Close()
-
+		
 		ch, _ := c.Channel()
-
+		
 		ch.QueueDeclare(queue, false, true, false, false, nil)
 		defer ch.QueueDelete(queue, false, false, false)
-
+		
 		messages, _ := ch.Consume(queue, "integration-tag", false, false, false, false, nil)
-
+		
 		ch.Publish("", queue, false, false, Publishing{Body: []byte("1")})
-
+		
 		assertConsumeBody(t, messages, []byte("1"))
-
+		
 		err := ch.Cancel("integration-tag", false)
 		if err != nil {
 			t.Fatalf("error cancelling the consumer: %v", err)
 		}
-
+		
 		ch.Publish("", queue, false, false, Publishing{Body: []byte("2")})
-
+		
 		select {
 		case <-time.After(100 * time.Millisecond):
 			t.Fatalf("Timeout on Close")
@@ -742,59 +743,59 @@ func (c *Connection) Generate(r *rand.Rand, _ int) reflect.Value {
 	if urlStr == "" {
 		return reflect.ValueOf(nil)
 	}
-
+	
 	conn, err := Dial(urlStr)
 	if err != nil {
 		return reflect.ValueOf(nil)
 	}
-
+	
 	return reflect.ValueOf(conn)
 }
 
 func (c Publishing) Generate(r *rand.Rand, _ int) reflect.Value {
 	var ok bool
 	var t reflect.Value
-
+	
 	p := Publishing{}
 	//p.DeliveryMode = uint8(r.Intn(3))
 	//p.Priority = uint8(r.Intn(8))
-
+	
 	if r.Intn(2) > 0 {
 		p.ContentType = "application/octet-stream"
 	}
-
+	
 	if r.Intn(2) > 0 {
 		p.ContentEncoding = "gzip"
 	}
-
+	
 	if r.Intn(2) > 0 {
 		p.CorrelationId = fmt.Sprintf("%d", r.Int())
 	}
-
+	
 	if r.Intn(2) > 0 {
 		p.ReplyTo = fmt.Sprintf("%d", r.Int())
 	}
-
+	
 	if r.Intn(2) > 0 {
 		p.MessageId = fmt.Sprintf("%d", r.Int())
 	}
-
+	
 	if r.Intn(2) > 0 {
 		p.Type = fmt.Sprintf("%d", r.Int())
 	}
-
+	
 	if r.Intn(2) > 0 {
 		p.AppId = fmt.Sprintf("%d", r.Int())
 	}
-
+	
 	if r.Intn(2) > 0 {
 		p.Timestamp = time.Unix(r.Int63(), r.Int63())
 	}
-
+	
 	if t, ok = quick.Value(reflect.TypeOf(p.Body), r); ok {
 		p.Body = t.Bytes()
 	}
-
+	
 	return reflect.ValueOf(p)
 }
 
@@ -803,14 +804,14 @@ func TestQuickPublishOnly(t *testing.T) {
 		defer c.Close()
 		pub, err := c.Channel()
 		queue := "test-publish"
-
+		
 		if _, err = pub.QueueDeclare(queue, false, true, false, false, nil); err != nil {
 			t.Errorf("Failed to declare: %s", err)
 			return
 		}
-
+		
 		defer pub.QueueDelete(queue, false, false, false)
-
+		
 		quick.Check(func(msg Publishing) bool {
 			return pub.Publish("", queue, false, false, msg) == nil
 		}, nil)
@@ -821,29 +822,29 @@ func TestPublishEmptyBody(t *testing.T) {
 	c := integrationConnection(t, "empty")
 	if c != nil {
 		defer c.Close()
-
+		
 		ch, err := c.Channel()
 		if err != nil {
 			t.Errorf("Failed to create channel")
 			return
 		}
-
+		
 		queue := "test-TestPublishEmptyBody"
-
+		
 		if _, err := ch.QueueDeclare(queue, false, true, false, false, nil); err != nil {
 			t.Fatalf("Could not declare")
 		}
-
+		
 		messages, err := ch.Consume(queue, "", false, false, false, false, nil)
 		if err != nil {
 			t.Fatalf("Could not consume")
 		}
-
+		
 		err = ch.Publish("", queue, false, false, Publishing{})
 		if err != nil {
 			t.Fatalf("Could not publish")
 		}
-
+		
 		select {
 		case msg := <-messages:
 			if len(msg.Body) != 0 {
@@ -859,33 +860,33 @@ func TestPublishEmptyBodyWithHeadersIssue67(t *testing.T) {
 	c := integrationConnection(t, "issue67")
 	if c != nil {
 		defer c.Close()
-
+		
 		ch, err := c.Channel()
 		if err != nil {
 			t.Errorf("Failed to create channel")
 			return
 		}
-
+		
 		queue := "test-TestPublishEmptyBodyWithHeaders"
-
+		
 		if _, err := ch.QueueDeclare(queue, false, true, false, false, nil); err != nil {
 			t.Fatalf("Could not declare")
 		}
-
+		
 		messages, err := ch.Consume(queue, "", false, false, false, false, nil)
 		if err != nil {
 			t.Fatalf("Could not consume")
 		}
-
+		
 		headers := Table{
 			"ham": "spam",
 		}
-
+		
 		err = ch.Publish("", queue, false, false, Publishing{Headers: headers})
 		if err != nil {
 			t.Fatalf("Could not publish")
 		}
-
+		
 		select {
 		case msg := <-messages:
 			if msg.Headers["ham"] == nil {
@@ -903,33 +904,33 @@ func TestPublishEmptyBodyWithHeadersIssue67(t *testing.T) {
 func TestQuickPublishConsumeOnly(t *testing.T) {
 	c1 := integrationConnection(t, "quick-pub")
 	c2 := integrationConnection(t, "quick-sub")
-
+	
 	if c1 != nil && c2 != nil {
 		defer c1.Close()
 		defer c2.Close()
-
+		
 		pub, err := c1.Channel()
 		sub, err := c2.Channel()
-
+		
 		queue := "TestPublishConsumeOnly"
-
+		
 		if _, err = pub.QueueDeclare(queue, false, true, false, false, nil); err != nil {
 			t.Errorf("Failed to declare: %s", err)
 			return
 		}
-
+		
 		if _, err = sub.QueueDeclare(queue, false, true, false, false, nil); err != nil {
 			t.Errorf("Failed to declare: %s", err)
 			return
 		}
-
+		
 		defer sub.QueueDelete(queue, false, false, false)
-
+		
 		ch, err := sub.Consume(queue, "", false, false, false, false, nil)
 		if err != nil {
 			t.Errorf("Could not sub: %s", err)
 		}
-
+		
 		quick.CheckEqual(
 			func(msg Publishing) []byte {
 				empty := Publishing{Body: msg.Body}
@@ -950,40 +951,40 @@ func TestQuickPublishConsumeOnly(t *testing.T) {
 func TestQuickPublishConsumeBigBody(t *testing.T) {
 	c1 := integrationConnection(t, "big-pub")
 	c2 := integrationConnection(t, "big-sub")
-
+	
 	if c1 != nil && c2 != nil {
 		defer c1.Close()
 		defer c2.Close()
-
+		
 		pub, err := c1.Channel()
 		sub, err := c2.Channel()
-
+		
 		queue := "test-pubsub"
-
+		
 		if _, err = sub.QueueDeclare(queue, false, true, false, false, nil); err != nil {
 			t.Errorf("Failed to declare: %s", err)
 			return
 		}
-
+		
 		ch, err := sub.Consume(queue, "", false, false, false, false, nil)
 		if err != nil {
 			t.Errorf("Could not sub: %s", err)
 		}
-
+		
 		fixture := Publishing{
 			Body: make([]byte, 1e4+1000),
 		}
-
+		
 		if _, err = pub.QueueDeclare(queue, false, true, false, false, nil); err != nil {
 			t.Errorf("Failed to declare: %s", err)
 			return
 		}
-
+		
 		err = pub.Publish("", queue, false, false, fixture)
 		if err != nil {
 			t.Errorf("Could not publish big body")
 		}
-
+		
 		select {
 		case msg := <-ch:
 			if bytes.Compare(msg.Body, fixture.Body) != 0 {
@@ -998,23 +999,23 @@ func TestQuickPublishConsumeBigBody(t *testing.T) {
 func TestIntegrationGetOk(t *testing.T) {
 	if c := integrationConnection(t, "getok"); c != nil {
 		defer c.Close()
-
+		
 		queue := "test.get-ok"
 		ch, _ := c.Channel()
-
+		
 		ch.QueueDeclare(queue, false, true, false, false, nil)
 		ch.Publish("", queue, false, false, Publishing{Body: []byte("ok")})
-
+		
 		msg, ok, err := ch.Get(queue, false)
-
+		
 		if err != nil {
 			t.Fatalf("Failed get: %v", err)
 		}
-
+		
 		if !ok {
 			t.Fatalf("Get on a queued message did not find the message")
 		}
-
+		
 		if string(msg.Body) != "ok" {
 			t.Fatalf("Get did not get the correct message")
 		}
@@ -1024,18 +1025,18 @@ func TestIntegrationGetOk(t *testing.T) {
 func TestIntegrationGetEmpty(t *testing.T) {
 	if c := integrationConnection(t, "getok"); c != nil {
 		defer c.Close()
-
+		
 		queue := "test.get-ok"
 		ch, _ := c.Channel()
-
+		
 		ch.QueueDeclare(queue, false, true, false, false, nil)
-
+		
 		_, ok, err := ch.Get(queue, false)
-
+		
 		if err != nil {
 			t.Fatalf("Failed get: %v", err)
 		}
-
+		
 		if !ok {
 			t.Fatalf("Get on a queued message retrieved a message when it shouldn't have")
 		}
@@ -1045,28 +1046,28 @@ func TestIntegrationGetEmpty(t *testing.T) {
 func TestIntegrationTxCommit(t *testing.T) {
 	if c := integrationConnection(t, "txcommit"); c != nil {
 		defer c.Close()
-
+		
 		queue := "test.tx.commit"
 		ch, _ := c.Channel()
-
+		
 		ch.QueueDeclare(queue, false, true, false, false, nil)
-
+		
 		if err := ch.Tx(); err != nil {
 			t.Fatalf("tx.select failed")
 		}
-
+		
 		ch.Publish("", queue, false, false, Publishing{Body: []byte("ok")})
-
+		
 		if err := ch.TxCommit(); err != nil {
 			t.Fatalf("tx.commit failed")
 		}
-
+		
 		msg, ok, err := ch.Get(queue, false)
-
+		
 		if err != nil || !ok {
 			t.Fatalf("Failed get: %v", err)
 		}
-
+		
 		if string(msg.Body) != "ok" {
 			t.Fatalf("Get did not get the correct message from the transaction")
 		}
@@ -1076,28 +1077,28 @@ func TestIntegrationTxCommit(t *testing.T) {
 func TestIntegrationTxRollback(t *testing.T) {
 	if c := integrationConnection(t, "txrollback"); c != nil {
 		defer c.Close()
-
+		
 		queue := "test.tx.rollback"
 		ch, _ := c.Channel()
-
+		
 		ch.QueueDeclare(queue, false, true, false, false, nil)
-
+		
 		if err := ch.Tx(); err != nil {
 			t.Fatalf("tx.select failed")
 		}
-
+		
 		ch.Publish("", queue, false, false, Publishing{Body: []byte("ok")})
-
+		
 		if err := ch.TxRollback(); err != nil {
 			t.Fatalf("tx.rollback failed")
 		}
-
+		
 		_, ok, err := ch.Get(queue, false)
-
+		
 		if err != nil {
 			t.Fatalf("Failed get: %v", err)
 		}
-
+		
 		if ok {
 			t.Fatalf("message was published when it should have been rolled back")
 		}
@@ -1107,24 +1108,24 @@ func TestIntegrationTxRollback(t *testing.T) {
 func TestIntegrationReturn(t *testing.T) {
 	if c, ch := integrationQueue(t, "return"); c != nil {
 		defer c.Close()
-
+		
 		ret := make(chan Return, 1)
-
+		
 		ch.NotifyReturn(ret)
-
+		
 		// mandatory publish to an exchange without a binding should be returned
 		ch.Publish("", "return-without-binding", true, false, Publishing{Body: []byte("mandatory")})
-
+		
 		select {
 		case res := <-ret:
 			if string(res.Body) != "mandatory" {
 				t.Fatalf("expected return of the same message")
 			}
-
+			
 			if res.ReplyCode != NoRoute {
 				t.Fatalf("expected no consumers reply code on the Return result, got: %v", res.ReplyCode)
 			}
-
+		
 		case <-time.After(200 * time.Millisecond):
 			t.Fatalf("no return was received within 200ms")
 		}
@@ -1134,12 +1135,12 @@ func TestIntegrationReturn(t *testing.T) {
 func TestIntegrationCancel(t *testing.T) {
 	queue := "cancel"
 	consumerTag := "test.cancel"
-
+	
 	if c, ch := integrationQueue(t, queue); c != nil {
 		defer c.Close()
-
+		
 		cancels := ch.NotifyCancel(make(chan string, 1))
-
+		
 		go func() {
 			if _, err := ch.Consume(queue, consumerTag, false, false, false, false, nil); err != nil {
 				t.Fatalf("cannot consume from %q to test NotifyCancel: %v", queue, err)
@@ -1148,7 +1149,7 @@ func TestIntegrationCancel(t *testing.T) {
 				t.Fatalf("cannot delete integration queue: %v", err)
 			}
 		}()
-
+		
 		select {
 		case tag := <-cancels:
 			if want, got := consumerTag, tag; want != got {
@@ -1163,15 +1164,15 @@ func TestIntegrationCancel(t *testing.T) {
 func TestIntegrationConfirm(t *testing.T) {
 	if c, ch := integrationQueue(t, "confirm"); c != nil {
 		defer c.Close()
-
+		
 		confirms := ch.NotifyPublish(make(chan Confirmation, 1))
-
+		
 		if err := ch.Confirm(false); err != nil {
 			t.Fatalf("could not confirm")
 		}
-
+		
 		ch.Publish("", "confirm", false, false, Publishing{Body: []byte("confirm")})
-
+		
 		select {
 		case confirmed := <-confirms:
 			if confirmed.DeliveryTag != 1 {
@@ -1183,12 +1184,12 @@ func TestIntegrationConfirm(t *testing.T) {
 	}
 }
 
-// https://github.com/streadway/amqp/issues/61
+// https://github.com/gozelle/amqp/issues/61
 func TestRoundTripAllFieldValueTypes61(t *testing.T) {
 	if conn := integrationConnection(t, "issue61"); conn != nil {
 		defer conn.Close()
 		timestamp := time.Unix(100000000, 0)
-
+		
 		headers := Table{
 			"A": []interface{}{
 				[]interface{}{"nested array", int32(3)},
@@ -1220,30 +1221,30 @@ func TestRoundTripAllFieldValueTypes61(t *testing.T) {
 			"t": bool(true),
 			"x": []byte{'b', '1'},
 		}
-
+		
 		queue := "test.issue61-roundtrip"
 		ch, _ := conn.Channel()
-
+		
 		if _, err := ch.QueueDeclare(queue, false, true, false, false, nil); err != nil {
 			t.Fatalf("Could not declare")
 		}
-
+		
 		msgs, err := ch.Consume(queue, "", false, false, false, false, nil)
 		if err != nil {
 			t.Fatalf("Could not consume")
 		}
-
+		
 		err = ch.Publish("", queue, false, false, Publishing{Body: []byte("ignored"), Headers: headers})
 		if err != nil {
 			t.Fatalf("Could not publish: %v", err)
 		}
-
+		
 		msg, ok := <-msgs
-
+		
 		if !ok {
 			t.Fatalf("Channel closed prematurely likely due to publish exception")
 		}
-
+		
 		for k, v := range headers {
 			if !reflect.DeepEqual(v, msg.Headers[k]) {
 				t.Errorf("Round trip header not the same for key %q: expected: %#v, got %#v", k, v, msg.Headers[k])
@@ -1255,15 +1256,15 @@ func TestRoundTripAllFieldValueTypes61(t *testing.T) {
 // Declares a queue with the x-message-ttl extension to exercise integer
 // serialization.
 //
-// Relates to https://github.com/streadway/amqp/issues/60
+// Relates to https://github.com/gozelle/amqp/issues/60
 //
 func TestDeclareArgsXMessageTTL(t *testing.T) {
 	if conn := integrationConnection(t, "declareTTL"); conn != nil {
 		defer conn.Close()
-
+		
 		ch, _ := conn.Channel()
 		args := Table{"x-message-ttl": int32(9000000)}
-
+		
 		// should not drop the connection
 		if _, err := ch.QueueDeclare("declareWithTTL", false, true, false, false, args); err != nil {
 			t.Fatalf("cannot declare with TTL: got: %v", err)
@@ -1274,60 +1275,60 @@ func TestDeclareArgsXMessageTTL(t *testing.T) {
 // Sets up the topology where rejected messages will be forwarded
 // to a fanout exchange, with a single queue bound.
 //
-// Relates to https://github.com/streadway/amqp/issues/56
+// Relates to https://github.com/gozelle/amqp/issues/56
 //
 func TestDeclareArgsRejectToDeadLetterQueue(t *testing.T) {
 	if conn := integrationConnection(t, "declareArgs"); conn != nil {
 		defer conn.Close()
-
+		
 		ex, q := "declareArgs", "declareArgs-deliveries"
 		dlex, dlq := ex+"-dead-letter", q+"-dead-letter"
-
+		
 		ch, _ := conn.Channel()
-
+		
 		if err := ch.ExchangeDeclare(ex, "fanout", false, true, false, false, nil); err != nil {
 			t.Fatalf("cannot declare %v: got: %v", ex, err)
 		}
-
+		
 		if err := ch.ExchangeDeclare(dlex, "fanout", false, true, false, false, nil); err != nil {
 			t.Fatalf("cannot declare %v: got: %v", dlex, err)
 		}
-
+		
 		if _, err := ch.QueueDeclare(dlq, false, true, false, false, nil); err != nil {
 			t.Fatalf("cannot declare %v: got: %v", dlq, err)
 		}
-
+		
 		if err := ch.QueueBind(dlq, "#", dlex, false, nil); err != nil {
 			t.Fatalf("cannot bind %v to %v: got: %v", dlq, dlex, err)
 		}
-
+		
 		if _, err := ch.QueueDeclare(q, false, true, false, false, Table{
 			"x-dead-letter-exchange": dlex,
 		}); err != nil {
 			t.Fatalf("cannot declare %v with dlq %v: got: %v", q, dlex, err)
 		}
-
+		
 		if err := ch.QueueBind(q, "#", ex, false, nil); err != nil {
 			t.Fatalf("cannot bind %v: got: %v", ex, err)
 		}
-
+		
 		fails, err := ch.Consume(q, "", false, false, false, false, nil)
 		if err != nil {
 			t.Fatalf("cannot consume %v: got: %v", q, err)
 		}
-
+		
 		// Reject everything consumed
 		go func() {
 			for d := range fails {
 				d.Reject(false)
 			}
 		}()
-
+		
 		// Publish the 'poison'
 		if err := ch.Publish(ex, q, true, false, Publishing{Body: []byte("ignored")}); err != nil {
 			t.Fatalf("publishing failed")
 		}
-
+		
 		// spin-get until message arrives on the dead-letter queue with a
 		// synchronous parse to exercise the array field (x-death) set by the
 		// server relating to issue-56
@@ -1347,16 +1348,16 @@ func TestDeclareArgsRejectToDeadLetterQueue(t *testing.T) {
 				t.Fatalf("array field x-death expected in the headers, got: %v (%T)", d.Headers, d.Headers["x-death"])
 			}
 		}
-
+		
 		t.Fatalf("expectd dead-letter after 10 get attempts")
 	}
 }
 
-// https://github.com/streadway/amqp/issues/48
+// https://github.com/gozelle/amqp/issues/48
 func TestDeadlockConsumerIssue48(t *testing.T) {
 	if conn := integrationConnection(t, "issue48"); conn != nil {
 		defer conn.Close()
-
+		
 		deadline := make(chan bool)
 		go func() {
 			select {
@@ -1366,56 +1367,56 @@ func TestDeadlockConsumerIssue48(t *testing.T) {
 				// pass
 			}
 		}()
-
+		
 		ch, err := conn.Channel()
 		if err != nil {
 			t.Fatalf("got error on channel.open: %v", err)
 		}
-
+		
 		queue := "test-issue48"
-
+		
 		if _, err := ch.QueueDeclare(queue, false, true, false, false, nil); err != nil {
 			t.Fatalf("expected to declare a queue: %v", err)
 		}
-
+		
 		if err := ch.Confirm(false); err != nil {
 			t.Fatalf("got error on confirm: %v", err)
 		}
-
+		
 		confirms := ch.NotifyPublish(make(chan Confirmation, 2))
-
+		
 		for i := 0; i < cap(confirms); i++ {
 			// Fill the queue with some new or remaining publishings
 			ch.Publish("", queue, false, false, Publishing{Body: []byte("")})
 		}
-
+		
 		for i := 0; i < cap(confirms); i++ {
 			// Wait for them to land on the queue so they'll be delivered on consume
 			<-confirms
 		}
-
+		
 		// Consuming should send them all on the wire
 		msgs, err := ch.Consume(queue, "", false, false, false, false, nil)
 		if err != nil {
 			t.Fatalf("got error on consume: %v", err)
 		}
-
+		
 		// We pop one off the chan, the other is on the wire
 		<-msgs
-
+		
 		// Opening a new channel (any RPC) while another delivery is on the wire
 		if _, err := conn.Channel(); err != nil {
 			t.Fatalf("got error on consume: %v", err)
 		}
-
+		
 		// We pop the next off the chan
 		<-msgs
-
+		
 		deadline <- true
 	}
 }
 
-// https://github.com/streadway/amqp/issues/46
+// https://github.com/gozelle/amqp/issues/46
 func TestRepeatedChannelExceptionWithPublishAndMaxProcsIssue46(t *testing.T) {
 	conn := integrationConnection(t, "issue46")
 	if conn != nil {
@@ -1424,7 +1425,7 @@ func TestRepeatedChannelExceptionWithPublishAndMaxProcsIssue46(t *testing.T) {
 			if err != nil {
 				t.Fatalf("expected error only on publish, got error on channel.open: %v", err)
 			}
-
+			
 			for j := 0; j < 10; j++ {
 				err = ch.Publish("not-existing-exchange", "some-key", false, false, Publishing{Body: []byte("some-data")})
 				if err, ok := err.(Error); ok {
@@ -1437,7 +1438,7 @@ func TestRepeatedChannelExceptionWithPublishAndMaxProcsIssue46(t *testing.T) {
 	}
 }
 
-// https://github.com/streadway/amqp/issues/43
+// https://github.com/gozelle/amqp/issues/43
 func TestChannelExceptionWithCloseIssue43(t *testing.T) {
 	conn := integrationConnection(t, "issue43")
 	if conn != nil {
@@ -1446,29 +1447,29 @@ func TestChannelExceptionWithCloseIssue43(t *testing.T) {
 				t.Log(err.Error())
 			}
 		}()
-
+		
 		c1, err := conn.Channel()
 		if err != nil {
 			panic(err)
 		}
-
+		
 		go func() {
 			for err := range c1.NotifyClose(make(chan *Error)) {
 				t.Log("Channel1 Close: " + err.Error())
 			}
 		}()
-
+		
 		c2, err := conn.Channel()
 		if err != nil {
 			panic(err)
 		}
-
+		
 		go func() {
 			for err := range c2.NotifyClose(make(chan *Error)) {
 				t.Log("Channel2 Close: " + err.Error())
 			}
 		}()
-
+		
 		// Cause an asynchronous channel exception causing the server
 		// to send a "channel.close" method either before or after the next
 		// asynchronous method.
@@ -1476,11 +1477,11 @@ func TestChannelExceptionWithCloseIssue43(t *testing.T) {
 		if err != nil {
 			panic(err)
 		}
-
+		
 		// Receive or send the channel close method, the channel shuts down
 		// but this expects a channel.close-ok to be received.
 		c1.Close()
-
+		
 		// This ensures that the 2nd channel is unaffected by the channel exception
 		// on channel 1.
 		err = c2.ExchangeDeclare("test-channel-still-exists", "direct", false, true, false, false, nil)
@@ -1490,52 +1491,52 @@ func TestChannelExceptionWithCloseIssue43(t *testing.T) {
 	}
 }
 
-// https://github.com/streadway/amqp/issues/7
+// https://github.com/gozelle/amqp/issues/7
 func TestCorruptedMessageIssue7(t *testing.T) {
 	messageCount := 1024
-
+	
 	c1 := integrationConnection(t, "")
 	c2 := integrationConnection(t, "")
-
+	
 	if c1 != nil && c2 != nil {
 		defer c1.Close()
 		defer c2.Close()
-
+		
 		pub, err := c1.Channel()
 		if err != nil {
 			t.Fatalf("Cannot create Channel")
 		}
-
+		
 		sub, err := c2.Channel()
 		if err != nil {
 			t.Fatalf("Cannot create Channel")
 		}
-
+		
 		queue := "test-corrupted-message-regression"
-
+		
 		if _, err := pub.QueueDeclare(queue, false, true, false, false, nil); err != nil {
 			t.Fatalf("Cannot declare")
 		}
-
+		
 		if _, err := sub.QueueDeclare(queue, false, true, false, false, nil); err != nil {
 			t.Fatalf("Cannot declare")
 		}
-
+		
 		msgs, err := sub.Consume(queue, "", false, false, false, false, nil)
 		if err != nil {
 			t.Fatalf("Cannot consume")
 		}
-
+		
 		for i := 0; i < messageCount; i++ {
 			err := pub.Publish("", queue, false, false, Publishing{
 				Body: generateCrc32Random(7 * i),
 			})
-
+			
 			if err != nil {
 				t.Fatalf("Failed to publish")
 			}
 		}
-
+		
 		for i := 0; i < messageCount; i++ {
 			select {
 			case msg := <-msgs:
@@ -1547,12 +1548,12 @@ func TestCorruptedMessageIssue7(t *testing.T) {
 	}
 }
 
-// https://github.com/streadway/amqp/issues/136
+// https://github.com/gozelle/amqp/issues/136
 func TestChannelCounterShouldNotPanicIssue136(t *testing.T) {
 	if c := integrationConnection(t, "issue136"); c != nil {
 		defer c.Close()
 		var wg sync.WaitGroup
-
+		
 		// exceeds 65535 channels
 		for i := 0; i < 8; i++ {
 			wg.Add(1)
@@ -1579,14 +1580,14 @@ func TestExchangeDeclarePrecondition(t *testing.T) {
 	if c1 != nil && c2 != nil {
 		defer c1.Close()
 		defer c2.Close()
-
+		
 		ch, err := c1.Channel()
 		if err != nil {
 			t.Fatalf("Create channel")
 		}
-
+		
 		exchange := "test-mismatched-redeclare"
-
+		
 		err = ch.ExchangeDeclare(
 			exchange,
 			"direct", // exchangeType
@@ -1599,7 +1600,7 @@ func TestExchangeDeclarePrecondition(t *testing.T) {
 		if err != nil {
 			t.Fatalf("Could not initially declare exchange")
 		}
-
+		
 		err = ch.ExchangeDeclare(
 			exchange,
 			"direct",
@@ -1609,11 +1610,11 @@ func TestExchangeDeclarePrecondition(t *testing.T) {
 			false,
 			nil,
 		)
-
+		
 		if err == nil {
 			t.Fatalf("Expected to fail a redeclare with different durability, didn't receive an error")
 		}
-
+		
 		if err, ok := err.(Error); ok {
 			if err.Code != PreconditionFailed {
 				t.Fatalf("Expected precondition error")
@@ -1622,7 +1623,7 @@ func TestExchangeDeclarePrecondition(t *testing.T) {
 				t.Fatalf("Expected to be able to recover")
 			}
 		}
-
+		
 		ch2, _ := c2.Channel()
 		if err = ch2.ExchangeDelete(exchange, false, false); err != nil {
 			t.Fatalf("Could not delete exchange: %v", err)
@@ -1633,13 +1634,13 @@ func TestExchangeDeclarePrecondition(t *testing.T) {
 func TestRabbitMQQueueTTLGet(t *testing.T) {
 	if c := integrationRabbitMQ(t, "ttl"); c != nil {
 		defer c.Close()
-
+		
 		queue := "test.rabbitmq-message-ttl"
 		channel, err := c.Channel()
 		if err != nil {
 			t.Fatalf("channel: %v", err)
 		}
-
+		
 		if _, err = channel.QueueDeclare(
 			queue,
 			false,
@@ -1650,17 +1651,17 @@ func TestRabbitMQQueueTTLGet(t *testing.T) {
 		); err != nil {
 			t.Fatalf("queue declare: %s", err)
 		}
-
+		
 		channel.Publish("", queue, false, false, Publishing{Body: []byte("ttl")})
-
+		
 		time.Sleep(200 * time.Millisecond)
-
+		
 		_, ok, err := channel.Get(queue, false)
-
+		
 		if ok {
 			t.Fatalf("Expected the message to expire in 100ms, it didn't expire after 200ms")
 		}
-
+		
 		if err != nil {
 			t.Fatalf("Failed to get on ttl queue")
 		}
@@ -1670,38 +1671,38 @@ func TestRabbitMQQueueTTLGet(t *testing.T) {
 func TestRabbitMQQueueNackMultipleRequeue(t *testing.T) {
 	if c := integrationRabbitMQ(t, "nack"); c != nil {
 		defer c.Close()
-
+		
 		if c.isCapable("basic.nack") {
 			queue := "test.rabbitmq-basic-nack"
 			channel, err := c.Channel()
 			if err != nil {
 				t.Fatalf("channel: %v", err)
 			}
-
+			
 			if _, err = channel.QueueDeclare(queue, false, true, false, false, nil); err != nil {
 				t.Fatalf("queue declare: %s", err)
 			}
-
+			
 			channel.Publish("", queue, false, false, Publishing{Body: []byte("1")})
 			channel.Publish("", queue, false, false, Publishing{Body: []byte("2")})
-
+			
 			m1, ok, err := channel.Get(queue, false)
 			if !ok || err != nil || m1.Body[0] != '1' {
 				t.Fatalf("could not get message %v", m1)
 			}
-
+			
 			m2, ok, err := channel.Get(queue, false)
 			if !ok || err != nil || m2.Body[0] != '2' {
 				t.Fatalf("could not get message %v", m2)
 			}
-
+			
 			m2.Nack(true, true)
-
+			
 			m1, ok, err = channel.Get(queue, false)
 			if !ok || err != nil || m1.Body[0] != '1' {
 				t.Fatalf("could not get message %v", m1)
 			}
-
+			
 			m2, ok, err = channel.Get(queue, false)
 			if !ok || err != nil || m2.Body[0] != '2' {
 				t.Fatalf("could not get message %v", m2)
@@ -1718,24 +1719,24 @@ func TestConsumerCancelNotification(t *testing.T) {
 		if err != nil {
 			t.Fatalf("got error on channel.open: %v", err)
 		}
-
+		
 		queue := "test-consumer-cancel-notification"
-
+		
 		if _, err := ch.QueueDeclare(queue, false, true, false, false, nil); err != nil {
 			t.Fatalf("expected to declare a queue: %v", err)
 		}
-
+		
 		if _, err := ch.Consume(queue, "", false, false, false, false, nil); err != nil {
 			t.Fatalf("basic.consume failed")
 		}
 		// consumer cancel notification channel
 		ccnChan := make(chan string, 1)
 		ch.NotifyCancel(ccnChan)
-
+		
 		if _, err := ch.QueueDelete(queue, false, false, true); err != nil {
 			t.Fatalf("queue.delete failed: %s", err)
 		}
-
+		
 		select {
 		case <-ccnChan:
 			// do nothing
@@ -1755,17 +1756,17 @@ func TestConcurrentChannelAndConnectionClose(t *testing.T) {
 		if err != nil {
 			t.Fatalf("got error on channel.open: %v", err)
 		}
-
+		
 		var wg sync.WaitGroup
 		wg.Add(2)
-
+		
 		starter := make(chan struct{})
 		go func() {
 			defer wg.Done()
 			<-starter
 			c.Close()
 		}()
-
+		
 		go func() {
 			defer wg.Done()
 			<-starter
@@ -1826,7 +1827,7 @@ func integrationRabbitMQ(t *testing.T, name string) *Connection {
 			return conn
 		}
 	}
-
+	
 	return nil
 }
 
@@ -1840,21 +1841,21 @@ func assertConsumeBody(t *testing.T, messages <-chan Delivery, want []byte) (msg
 	case <-time.After(200 * time.Millisecond):
 		t.Fatalf("Timeout waiting for %v", want)
 	}
-
+	
 	return msg
 }
 
 // Pulls out the CRC and verifies the remaining content against the CRC
 func assertMessageCrc32(t *testing.T, msg []byte, assert string) {
 	size := binary.BigEndian.Uint32(msg[:4])
-
+	
 	crc := crc32.NewIEEE()
 	crc.Write(msg[8:])
-
+	
 	if binary.BigEndian.Uint32(msg[4:8]) != crc.Sum32() {
 		t.Fatalf("Message does not match CRC: %s", assert)
 	}
-
+	
 	if int(size) != len(msg)-8 {
 		t.Fatalf("Message does not match size, should=%d, is=%d: %s", size, len(msg)-8, assert)
 	}
@@ -1867,12 +1868,12 @@ func generateCrc32Random(size int) []byte {
 	if _, err := io.ReadFull(devrand.Reader, msg); err != nil {
 		panic(err)
 	}
-
+	
 	crc := crc32.NewIEEE()
 	crc.Write(msg[8:])
-
+	
 	binary.BigEndian.PutUint32(msg[0:4], uint32(size))
 	binary.BigEndian.PutUint32(msg[4:8], crc.Sum32())
-
+	
 	return msg
 }
